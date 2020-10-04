@@ -648,6 +648,8 @@ function Person({
                     deadBodyParts.push(body);
                     switch (body) {
                         case head:
+                            victor = this.opponent;
+                            displayVictor();
                             World.remove(engine.world, [neck]);
                             deadBodyParts.push(torso);
                         case torso:
