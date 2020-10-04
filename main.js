@@ -15,6 +15,7 @@ let sword;
 let axe;
 let collidedBodies = [];
 let gameMode = "load";
+let victorDisplayed = false;
 let victor;
 
 
@@ -80,6 +81,7 @@ function setup() {
 }
 
 function start(difficulty) {
+    victorDisplayed = false;
     let steveWeapon;
     let stevioWeapon;
     let steveCow;
@@ -251,7 +253,6 @@ function keyReleased() {
     }
 }
 const menu = document.getElementById("menu");
-let victorDisplayed = false;
 
 function displayVictor() {
     if (!victorDisplayed) {
