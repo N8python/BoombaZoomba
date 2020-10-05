@@ -17,7 +17,10 @@ let collidedBodies = [];
 let gameMode = "load";
 let victorDisplayed = false;
 let victor;
-
+let socket = io();
+let id;
+let username;
+let lobbyChat = [];
 
 function preload() {
     dagger = loadImage("dagger.png");
@@ -302,4 +305,81 @@ const singlePlayerSelection = () => {
     }
     menu.appendChild(startButton);
 }
+const askUsername = () => {
+    gameMode = "load";
+    menu.innerHTML = `<h1 style="font-size: 60px; margin-left: 64px;" class="w3-text-white">Multiplayer</h1>`;
+    const usernameBox = document.createElement("input");
+    usernameBox.setAttribute("placeholder", "Enter a username...");
+    usernameBox.classList.add("w3-xlarge");
+    usernameBox.style.marginLeft = "48px";
+    usernameBox.onkeyup = (e) => {
+        if (e.key === "Enter") {
+            username = usernameBox.value;
+            openLobby();
+        }
+    }
+    menu.appendChild(usernameBox);
+}
+const openLobby = () => {
+    gameMode = "load";
+    menu.innerHTML = `<h1 style="font-size: 60px; margin-left: 64px;" class="w3-text-white">Multiplayer</h1>`;
+    const chatLog = document.createElement("div");
+    chatLog.classList.add("w3-white", "w3-round-xlarge");
+    chatLog.style.padding = "4px";
+    chatLog.style.width = "200px";
+    chatLog.style.height = "200px";
+    chatLog.style.fontFamily = "'Atomic Age', cursive";
+    chatLog.style.marginLeft = "110px";
+    chatLog.style.textAlign = "left";
+    chatLog.style.overflowY = "scroll";
+    chatLog.style.wordWrap = "break-word";
+    chatLog.innerHTML = "Chat Log:<br>";
+    chatLog.id = "chatLog";
+    const chatInput = document.createElement("input");
+    chatInput.classList.add("w3-round-xlarge")
+    chatInput.style.marginLeft = "42px";
+    chatInput.style.marginBottom = "50px";
+    chatInput.placeholder = `Message Here...`;
+    chatInput.style.width = "200px";
+    chatInput.style.fontFamily = "'Atomic Age', cursive";
+    chatInput.onkeyup = (e) => {
+        if (e.key === "Enter") {
+            sendMessage(chatInput.value);
+            chatInput.value = "";
+        }
+    }
+    menu.appendChild(chatLog);
+    menu.appendChild(chatInput);
+    displayLobbyChat();
+}
+const displayLobbyChat = () => {
+    const chatLog = document.getElementById("chatLog")
+    if (chatLog) {
+        chatLog.innerHTML = " Chat Log:<br>";
+        lobbyChat.forEach(message => {
+            chatLog.innerHTML += message;
+            chatLog.innerHTML += "<br>";
+        });
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+}
 document.getElementById("singleplayer").onclick = singlePlayerSelection;
+document.getElementById("multiplayer").onclick = askUsername;
+socket.on("connect", () => {
+    console.log("Connected to server!");
+})
+socket.on("idSent", data => {
+    id = data.id;
+});
+socket.on("messageRecord", messages => {
+    lobbyChat = messages;
+    displayLobbyChat();
+})
+
+function sendMessage(message) {
+    socket.emit("messageSend", {
+        username,
+        message,
+        id
+    })
+}
