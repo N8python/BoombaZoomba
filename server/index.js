@@ -9,6 +9,8 @@ app.use(express.static(publicPath));
 let server = http.createServer(app);
 let io = socketIO(server);
 let lobbyChat = [];
+const randomWaitingRoom = [];
+const matchRooms = [];
 io.on("connection", socket => {
     console.log("New user connected.");
     let id = +Math.random().toString().split(".")[1];
@@ -22,6 +24,32 @@ io.on("connection", socket => {
             lobbyChat.shift();
         }
         io.emit("messageRecord", lobbyChat);
+    })
+    socket.on("roomMessageSend", ({ username, message, roomName }) => {
+        const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
+        if (room) {
+            room.chat.push(`${username}: ${message}`)
+            if (room.chat.length > 100) {
+                room.chat.shift();
+            }
+            io.to(roomName).emit("roomMessageRecord", room.chat);
+        }
+    })
+    socket.on("addToRWaiting", ({ username, id }) => {
+        randomWaitingRoom.push({
+            socket,
+            username,
+            id
+        });
+        if (randomWaitingRoom.length > 1) {
+            const peeps = [randomWaitingRoom.shift(), randomWaitingRoom.shift()];
+            const roomName = Math.random().toString().slice(2);
+            peeps[0].socket.emit("partnerFound", { username: peeps[1].username, id: peeps[1].id, roomName });
+            peeps[1].socket.emit("partnerFound", { username: peeps[0].username, id: peeps[0].id, roomName });
+            peeps[0].socket.join(roomName);
+            peeps[1].socket.join(roomName);
+            matchRooms.push({ roomName, chat: [] });
+        }
     })
 });
 server.listen(port, () => {

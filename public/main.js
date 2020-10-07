@@ -21,6 +21,8 @@ let socket = io();
 let id;
 let username;
 let lobbyChat = [];
+let roomChat = [];
+let roomName;
 
 function preload() {
     dagger = loadImage("dagger.png");
@@ -328,7 +330,7 @@ const openLobby = () => {
     chatLog.style.padding = "4px";
     chatLog.style.width = "200px";
     chatLog.style.height = "200px";
-    chatLog.style.fontFamily = "'Atomic Age', cursive";
+    chatLog.style.fontFamily = "'Ubuntu', sans-serif";
     chatLog.style.marginLeft = "110px";
     chatLog.style.textAlign = "left";
     chatLog.style.overflowY = "scroll";
@@ -338,18 +340,48 @@ const openLobby = () => {
     const chatInput = document.createElement("input");
     chatInput.classList.add("w3-round-xlarge")
     chatInput.style.marginLeft = "42px";
-    chatInput.style.marginBottom = "50px";
     chatInput.placeholder = `Message Here...`;
     chatInput.style.width = "200px";
-    chatInput.style.fontFamily = "'Atomic Age', cursive";
+    chatInput.style.fontFamily = "'Ubuntu', sans-serif";
     chatInput.onkeyup = (e) => {
         if (e.key === "Enter") {
             sendMessage(chatInput.value);
             chatInput.value = "";
         }
     }
+    const randomMatch = document.createElement("button");
+    randomMatch.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    randomMatch.innerHTML = "Random Match";
+    randomMatch.style.marginLeft = "42px";
+    randomMatch.onclick = () => {
+        menu.innerHTML = `<h1 style="font-size: 60px; margin-left: 100px;" class="w3-text-white">Waiting...</h1>`;
+        socket.emit("addToRWaiting", {
+            username,
+            id
+        });
+    }
+    const createMatch = document.createElement("button");
+    createMatch.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    createMatch.innerHTML = "Create Match";
+    createMatch.setAttribute("disabled", "true");
+    createMatch.style.marginLeft = "0px";
+    const joinMatch = document.createElement("button");
+    joinMatch.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    joinMatch.innerHTML = "Join Match";
+    joinMatch.setAttribute("disabled", "true");
+    joinMatch.style.marginLeft = "20px";
     menu.appendChild(chatLog);
     menu.appendChild(chatInput);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(randomMatch);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(createMatch);
+    menu.appendChild(joinMatch);
     displayLobbyChat();
 }
 const displayLobbyChat = () => {
@@ -357,6 +389,17 @@ const displayLobbyChat = () => {
     if (chatLog) {
         chatLog.innerHTML = " Chat Log:<br>";
         lobbyChat.forEach(message => {
+            chatLog.innerHTML += message;
+            chatLog.innerHTML += "<br>";
+        });
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+}
+const displayRoomChat = () => {
+    const chatLog = document.getElementById("chatLogRoom")
+    if (chatLog) {
+        chatLog.innerHTML = " Chat Log:<br>";
+        roomChat.forEach(message => {
             chatLog.innerHTML += message;
             chatLog.innerHTML += "<br>";
         });
@@ -374,6 +417,48 @@ socket.on("idSent", data => {
 socket.on("messageRecord", messages => {
     lobbyChat = messages;
     displayLobbyChat();
+});
+socket.on("roomMessageRecord", messages => {
+    roomChat = messages;
+    displayRoomChat();
+})
+socket.on("partnerFound", partner => {
+    roomName = partner.roomName;
+    menu.innerHTML = `<h1 class="w3-text-white">Partner Found: ${partner.username}</h1>`;
+    const chatLog = document.createElement("div");
+    chatLog.classList.add("w3-white", "w3-round-xlarge");
+    chatLog.style.padding = "4px";
+    chatLog.style.width = "200px";
+    chatLog.style.height = "200px";
+    chatLog.style.fontFamily = "'Ubuntu', sans-serif";
+    chatLog.style.marginLeft = "110px";
+    chatLog.style.textAlign = "left";
+    chatLog.style.overflowY = "scroll";
+    chatLog.style.wordWrap = "break-word";
+    chatLog.innerHTML = "Chat Log:<br>";
+    chatLog.id = "chatLogRoom";
+    const chatInput = document.createElement("input");
+    chatInput.classList.add("w3-round-xlarge")
+    chatInput.style.marginLeft = "110px";
+    chatInput.placeholder = `Message Here...`;
+    chatInput.style.width = "200px";
+    chatInput.style.fontFamily = "'Ubuntu', sans-serif";
+    chatInput.onkeyup = (e) => {
+        if (e.key === "Enter") {
+            sendRoomMessage(chatInput.value);
+            chatInput.value = "";
+        }
+    }
+    const fightButton = document.createElement("button");
+    fightButton.innerHTML = "Fight";
+    fightButton.style.marginLeft = "100px";
+    fightButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    menu.appendChild(chatLog);
+    menu.appendChild(chatInput);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(fightButton);
 })
 
 function sendMessage(message) {
@@ -382,4 +467,13 @@ function sendMessage(message) {
         message,
         id
     })
+}
+
+function sendRoomMessage(message) {
+    socket.emit("roomMessageSend", {
+        username,
+        message,
+        id,
+        roomName
+    });
 }
