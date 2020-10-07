@@ -40,7 +40,7 @@ function Person({
     const head = Bodies.circle(x, y - 25, 15, {
         collisionFilter: {
             mask: myMask,
-            group: myGroup,
+            group: Body.nextGroup(false),
             category: myCategory
         },
     });
@@ -215,10 +215,10 @@ function Person({
         /*angleAStiffness: s,
         angleAMin: -Math.PI / u,
         angleAMax: Math.PI / u,*/
-        angleBMin: -Math.PI / u,
+        /*angleBMin: -Math.PI / u,
         angleBMax: Math.PI / u,
         angleBStiffness: s,
-        damping: 0.1
+        damping: 0.1*/
     });
     const hipJoint1 = Constraint.create({
         bodyA: torso,
@@ -425,6 +425,7 @@ function Person({
             Body.setVelocity(body, vec);
         }
     }
+    let puppetHealth = 1;
     return {
         get inGame() {
             return inGame;
@@ -494,7 +495,7 @@ function Person({
                 if (keyIsPressed && key === " " && this === steveio) {
                     const toMouse1 = vecTo(lowerArm1.position.x, lowerArm1.position.y, mouseX, mouseY, 1);
                     const toMouse2 = vecTo(lowerArm2.position.x, lowerArm2.position.y, mouseX, mouseY, 1);
-                    const toMouseWeapon = vecTo(weaponBox.position.x, weaponBox.position.y, mouseX, mouseY, 1);
+                    const toMouseWeapon = vecTo(weaponBox.position.x, weaponBox.position.y, mouseX, mouseY, 0.7);
                     setVelocity(lowerArm1, { x: lowerArm1.velocity.x + toMouse1.x, y: lowerArm1.velocity.y + toMouse1.y });
                     setVelocity(lowerArm2, { x: lowerArm2.velocity.x + toMouse2.x, y: lowerArm2.velocity.y + toMouse2.y });
                     setVelocity(weaponBox, { x: weaponBox.velocity.x + toMouseWeapon.x, y: weaponBox.velocity.y + toMouseWeapon.y })
@@ -621,6 +622,9 @@ function Person({
             ], engine).length !== 0;
         },
         getHealth() {
+            if (puppet) {
+                return puppetHealth;
+            }
             const healths = this.bodyParts.slice(0, -1).map(x => (x.health / x.maxHealth) * x.maxHealth ** (x === head ? 2.5 : 2));
             const maxes = this.bodyParts.slice(0, -1).map(x => x.maxHealth ** (x === head ? 2.5 : 2));
             return max(min(healths.reduce((t, v) => t + v) / maxes.reduce((t, v) => t + v), 1), 0) ** 2;
@@ -649,13 +653,19 @@ function Person({
                     deadBodyParts.push(body);
                     switch (body) {
                         case head:
-                            victor = this.opponent;
-                            displayVictor();
+                            if (!puppet) {
+                                victor = this.opponent;
+                                displayVictor();
+                                socket.emit("playerDeath", { roomName });
+                            }
                             World.remove(engine.world, [neck]);
                             deadBodyParts.push(torso);
                         case torso:
-                            victor = this.opponent;
-                            displayVictor();
+                            if (!puppet) {
+                                victor = this.opponent;
+                                displayVictor();
+                                socket.emit("playerDeath", { roomName });
+                            }
                             deadBodyParts.push(head);
                             deadBodyParts.push(upperArm1);
                             deadBodyParts.push(upperArm2);
@@ -733,6 +743,9 @@ function Person({
             this.bodyParts.forEach((part, i) => {
                 Body.setAngularVelocity(part, data[i]);
             });
+        },
+        setHealth(hp) {
+            puppetHealth = hp;
         }
     }
 }

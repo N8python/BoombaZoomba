@@ -87,7 +87,7 @@ function setup() {
     //start();
 }
 
-function start(difficulty, side = "left") {
+function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
     victorDisplayed = false;
     let steveWeapon;
     let stevioWeapon;
@@ -126,15 +126,15 @@ function start(difficulty, side = "left") {
             weapon: steveWeapon,
             category: 4,
             cowardice: steveCow,
-            puppet: difficulty === "Multiplayer"
-                //color: genColor()
+            puppet: difficulty === "Multiplayer",
+            color: side === "left" ? rightColor : leftColor
         });
         steveio = Person({
             x: side === "left" ? 100 : 500,
             y: 475,
             weapon: steveioWeapon,
-            category: 2
-                //color: genColor()
+            category: 2,
+            color: side === "left" ? leftColor : rightColor
         });
         inMultiplayerFight = true;
     } else {
@@ -234,7 +234,7 @@ function draw() {
             steveio.speed *= 0.99;
         }
         if (inMultiplayerFight) {
-            socket.emit("sendBodyData", { roomName, bodyData: steveio.getVelocities(), bodyPosData: steveio.getPositions(), bodyAngData: steveio.getAngles(), bodyAngVData: steveio.getAngleVels() });
+            socket.emit("sendBodyData", { roomName, bodyData: steveio.getVelocities(), bodyPosData: steveio.getPositions(), bodyAngData: steveio.getAngles(), bodyAngVData: steveio.getAngleVels(), health: steveio.getHealth() });
         }
     }
 }
@@ -292,14 +292,21 @@ const menu = document.getElementById("menu");
 
 function displayVictor() {
     if (!victorDisplayed) {
-        const winner = victor === steveio ? "You" : "The AI";
-        menu.innerHTML = `<h1 style="font-size: 60px; margin-left: ${winner === "You" ? 108 : 78}px" class="w3-text-white w3-animate-opacity">${winner} won</h1>`;
+        let winner = (victor === steveio) ? "You" : "The AI";
+        if (inMultiplayerFight) {
+            winner = "You";
+        }
+        const winMessage = (victor === steve && inMultiplayerFight) ? "Lost" : "Won"
+        menu.innerHTML = `<h1 style="font-size: 60px; margin-left: ${winner === "You" ? 108 : 78}px" class="w3-text-white w3-animate-opacity">${winner} ${winMessage}</h1>`;
         const restartButton = document.createElement("button");
-        restartButton.innerHTML = "Restart";
+        restartButton.innerHTML = inMultiplayerFight ? "Return To Lobby" : "Restart";
         restartButton.style.marginLeft = "100px";
         restartButton.classList.add(...
             "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
-        restartButton.onclick = singlePlayerSelection;
+        restartButton.onclick = inMultiplayerFight ? (() => {
+            gameMode = "load";
+            displayRoomLobby(roomPartner);
+        }) : singlePlayerSelection;
         menu.appendChild(restartButton);
         victorDisplayed = true;
     }
@@ -472,11 +479,23 @@ const displayRoomLobby = (partner) => {
     fightButton.onclick = () => {
         socket.emit("startFightMessage", { roomName });
     }
+    const leaveButton = document.createElement("button");
+    leaveButton.innerHTML = "Leave";
+    leaveButton.style.marginLeft = "100px";
+    leaveButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    leaveButton.onclick = () => {
+        openLobby();
+        socket.emit("takeDownRoom", { roomName });
+    }
     menu.appendChild(chatLog);
     menu.appendChild(chatInput);
     menu.appendChild(document.createElement("br"));
     menu.appendChild(document.createElement("br"));
     menu.appendChild(fightButton);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(leaveButton);
 }
 document.getElementById("singleplayer").onclick = singlePlayerSelection;
 document.getElementById("multiplayer").onclick = askUsername;
@@ -498,15 +517,23 @@ socket.on("partnerFound", partner => {
     displayRoomLobby(partner);
     roomPartner = partner;
 })
-socket.on("startFight", ({ side }) => {
+socket.on("startFight", ({ side, leftColor, rightColor }) => {
     menu.innerHTML = "";
-    start("Multiplayer", side);
+    start("Multiplayer", { side, leftColor, rightColor });
 })
-socket.on("receiveBodyData", ({ bodyData, bodyPosData, bodyAngData, bodyAngVData }) => {
+socket.on("receiveBodyData", ({ bodyData, bodyPosData, bodyAngData, bodyAngVData, health }) => {
     steve.setPositions(bodyPosData);
     steve.setAngles(bodyAngData);
     steve.setVelocities(bodyData);
     steve.setAngleVels(bodyAngVData);
+    steve.setHealth(health);
+});
+socket.on("win", () => {
+    victor = steveio;
+    displayVictor();
+})
+socket.on("leaveRoom", () => {
+    openLobby();
 })
 
 function sendMessage(message) {

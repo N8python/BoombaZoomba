@@ -1,7 +1,23 @@
+function random(min, max) {
+    return min + (max - min) * Math.random();
+}
+
+function genColor() {
+    let color = [0, 0, 0];
+    let cpool = random(255, 255 * 3);
+    let idxs = [0, 1, 2].sort(() => Math.random() - 0.5);
+    idxs.forEach(i => {
+        let c = random(0.3, 0.7);
+        color[i] = Math.min(cpool * c, 255);
+        cpool *= (1 - c);
+    });
+    return color;
+}
 const path = require("path");
 const http = require("http");
 const express = require("express");
 const socketIO = require("socket.io");
+const { match } = require("assert");
 const publicPath = path.join(__dirname, "../public");
 const port = process.env.PORT || 3000;
 let app = express();
@@ -54,14 +70,27 @@ io.on("connection", socket => {
     socket.on("startFightMessage", ({ roomName }) => {
         //io.to(roomName).emit("startFight", {});
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
-        let side = "left"
+        let side = "left";
+        let leftColor = genColor();
+        let rightColor = genColor();
         room.people.forEach(({ socket }) => {
-            socket.emit("startFight", { side });
+            socket.emit("startFight", { side, leftColor, rightColor });
             side = "right";
         })
     });
-    socket.on("sendBodyData", ({ roomName, bodyData, bodyPosData, bodyAngData, bodyAngVData }) => {
-        socket.broadcast.to(roomName).emit("receiveBodyData", { bodyData, bodyPosData, bodyAngData, bodyAngVData });
+    socket.on("sendBodyData", ({ roomName, bodyData, bodyPosData, bodyAngData, bodyAngVData, health }) => {
+        socket.broadcast.to(roomName).emit("receiveBodyData", { bodyData, bodyPosData, bodyAngData, bodyAngVData, health });
+    })
+    socket.on("playerDeath", ({ roomName }) => {
+        socket.broadcast.to(roomName).emit("win", {});
+    });
+    socket.on("takeDownRoom", ({ roomName }) => {
+        const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
+        room.people.forEach(({ socket }) => {
+            socket.emit("leaveRoom", {});
+            socket.leave(roomName);
+        });
+        matchRooms.splice(matchRooms.indexOf(room), 1);
     })
 });
 server.listen(port, () => {
