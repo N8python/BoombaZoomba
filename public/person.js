@@ -18,7 +18,8 @@ function Person({
     color = [225, 225, 225],
     weapon,
     category,
-    cowardice = 0
+    cowardice = 0,
+    puppet = false
 }) {
     const weaponWidth = 10;
     const weaponHeight = 30;
@@ -499,7 +500,7 @@ function Person({
                     setVelocity(weaponBox, { x: weaponBox.velocity.x + toMouseWeapon.x, y: weaponBox.velocity.y + toMouseWeapon.y })
                     speed += toMouse1.x * 0.1;
                 }
-                if (this === steve && this.opponent && !this.opponent.deadBodyParts.includes(this.opponent.head)) {
+                if (this === steve && this.opponent && !this.opponent.deadBodyParts.includes(this.opponent.head) && !puppet) {
                     if (!this.deadBodyParts.includes(lowerArm1)) {
                         const c = healthLost > 10 ? -1 : 1;
                         const toMouse1 = vecTo(lowerArm1.position.x, lowerArm1.position.y, this.opponent.head.position.x, this.opponent.head.position.y, c);
@@ -700,6 +701,38 @@ function Person({
                     }
                 }
             })
+        },
+        getVelocities() {
+            return this.bodyParts.map(part => ({ x: part.velocity.x, y: part.velocity.y }));
+        },
+        getPositions() {
+            return this.bodyParts.map(part => ({ x: part.position.x, y: part.position.y }));
+        },
+        getAngles() {
+            return this.bodyParts.map(part => part.angle);
+        },
+        getAngleVels() {
+            return this.bodyParts.map(part => part.angularVelocity);
+        },
+        setVelocities(data) {
+            this.bodyParts.forEach((part, i) => {
+                Body.setVelocity(part, data[i])
+            });
+        },
+        setPositions(data) {
+            this.bodyParts.forEach((part, i) => {
+                Body.setPosition(part, data[i])
+            });
+        },
+        setAngles(data) {
+            this.bodyParts.forEach((part, i) => {
+                Body.setAngle(part, data[i]);
+            });
+        },
+        setAngleVels(data) {
+            this.bodyParts.forEach((part, i) => {
+                Body.setAngularVelocity(part, data[i]);
+            });
         }
     }
 }

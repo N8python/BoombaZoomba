@@ -22,7 +22,9 @@ let id;
 let username;
 let lobbyChat = [];
 let roomChat = [];
+let roomPartner;
 let roomName;
+let inMultiplayerFight;
 
 function preload() {
     dagger = loadImage("dagger.png");
@@ -85,7 +87,7 @@ function setup() {
     //start();
 }
 
-function start(difficulty) {
+function start(difficulty, side = "left") {
     victorDisplayed = false;
     let steveWeapon;
     let stevioWeapon;
@@ -111,22 +113,48 @@ function start(difficulty) {
             steveWeapon = axe;
             steveioWeapon = dagger;
             break;
+        case "Multiplayer":
+            steveCow = 0;
+            steveWeapon = sword;
+            steveioWeapon = sword;
+            break;
     }
-    steve = Person({
-        x: 500,
-        y: 475,
-        weapon: steveWeapon,
-        category: 4,
-        cowardice: steveCow
-            //color: genColor()
-    });
-    steveio = Person({
-        x: 100,
-        y: 475,
-        weapon: steveioWeapon,
-        category: 2
-            //color: genColor()
-    });
+    if (difficulty === "Multiplayer") {
+        steve = Person({
+            x: side === "left" ? 500 : 100,
+            y: 475,
+            weapon: steveWeapon,
+            category: 4,
+            cowardice: steveCow,
+            puppet: difficulty === "Multiplayer"
+                //color: genColor()
+        });
+        steveio = Person({
+            x: side === "left" ? 100 : 500,
+            y: 475,
+            weapon: steveioWeapon,
+            category: 2
+                //color: genColor()
+        });
+        inMultiplayerFight = true;
+    } else {
+        steve = Person({
+            x: 500,
+            y: 475,
+            weapon: steveWeapon,
+            category: 4,
+            cowardice: steveCow,
+            puppet: difficulty === "Multiplayer"
+                //color: genColor()
+        });
+        steveio = Person({
+            x: 100,
+            y: 475,
+            weapon: steveioWeapon,
+            category: 2
+                //color: genColor()
+        });
+    }
     World.add(engine.world, [ground, ceiling, leftWall, rightWall, ...boxes]);
     steveio.add();
     steve.add();
@@ -204,6 +232,9 @@ function draw() {
             steveio.speed *= 0.9;
         } else {
             steveio.speed *= 0.99;
+        }
+        if (inMultiplayerFight) {
+            socket.emit("sendBodyData", { roomName, bodyData: steveio.getVelocities(), bodyPosData: steveio.getPositions(), bodyAngData: steveio.getAngles(), bodyAngVData: steveio.getAngleVels() });
         }
     }
 }
@@ -406,23 +437,7 @@ const displayRoomChat = () => {
         chatLog.scrollTop = chatLog.scrollHeight;
     }
 }
-document.getElementById("singleplayer").onclick = singlePlayerSelection;
-document.getElementById("multiplayer").onclick = askUsername;
-socket.on("connect", () => {
-    console.log("Connected to server!");
-})
-socket.on("idSent", data => {
-    id = data.id;
-});
-socket.on("messageRecord", messages => {
-    lobbyChat = messages;
-    displayLobbyChat();
-});
-socket.on("roomMessageRecord", messages => {
-    roomChat = messages;
-    displayRoomChat();
-})
-socket.on("partnerFound", partner => {
+const displayRoomLobby = (partner) => {
     roomName = partner.roomName;
     menu.innerHTML = `<h1 class="w3-text-white">Partner Found: ${partner.username}</h1>`;
     const chatLog = document.createElement("div");
@@ -454,11 +469,44 @@ socket.on("partnerFound", partner => {
     fightButton.style.marginLeft = "100px";
     fightButton.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    fightButton.onclick = () => {
+        socket.emit("startFightMessage", { roomName });
+    }
     menu.appendChild(chatLog);
     menu.appendChild(chatInput);
     menu.appendChild(document.createElement("br"));
     menu.appendChild(document.createElement("br"));
     menu.appendChild(fightButton);
+}
+document.getElementById("singleplayer").onclick = singlePlayerSelection;
+document.getElementById("multiplayer").onclick = askUsername;
+socket.on("connect", () => {
+    console.log("Connected to server!");
+})
+socket.on("idSent", data => {
+    id = data.id;
+});
+socket.on("messageRecord", messages => {
+    lobbyChat = messages;
+    displayLobbyChat();
+});
+socket.on("roomMessageRecord", messages => {
+    roomChat = messages;
+    displayRoomChat();
+})
+socket.on("partnerFound", partner => {
+    displayRoomLobby(partner);
+    roomPartner = partner;
+})
+socket.on("startFight", ({ side }) => {
+    menu.innerHTML = "";
+    start("Multiplayer", side);
+})
+socket.on("receiveBodyData", ({ bodyData, bodyPosData, bodyAngData, bodyAngVData }) => {
+    steve.setPositions(bodyPosData);
+    steve.setAngles(bodyAngData);
+    steve.setVelocities(bodyData);
+    steve.setAngleVels(bodyAngVData);
 })
 
 function sendMessage(message) {

@@ -48,8 +48,20 @@ io.on("connection", socket => {
             peeps[1].socket.emit("partnerFound", { username: peeps[0].username, id: peeps[0].id, roomName });
             peeps[0].socket.join(roomName);
             peeps[1].socket.join(roomName);
-            matchRooms.push({ roomName, chat: [] });
+            matchRooms.push({ roomName, people: peeps, chat: [] });
         }
+    });
+    socket.on("startFightMessage", ({ roomName }) => {
+        //io.to(roomName).emit("startFight", {});
+        const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
+        let side = "left"
+        room.people.forEach(({ socket }) => {
+            socket.emit("startFight", { side });
+            side = "right";
+        })
+    });
+    socket.on("sendBodyData", ({ roomName, bodyData, bodyPosData, bodyAngData, bodyAngVData }) => {
+        socket.broadcast.to(roomName).emit("receiveBodyData", { bodyData, bodyPosData, bodyAngData, bodyAngVData });
     })
 });
 server.listen(port, () => {
