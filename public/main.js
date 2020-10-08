@@ -86,11 +86,12 @@ function setup() {
     });
     //start();
 }
+let doneOnce = false;
 
 function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
     victorDisplayed = false;
     let steveWeapon;
-    let stevioWeapon;
+    let steveioWeapon;
     let steveCow;
     switch (difficulty) {
         case "Easy":
@@ -118,6 +119,12 @@ function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
             steveWeapon = sword;
             steveioWeapon = sword;
             break;
+    }
+    if (steve) {
+        steve.remove();
+    }
+    if (steveio) {
+        steveio.remove();
     }
     if (difficulty === "Multiplayer") {
         steve = Person({
@@ -155,10 +162,15 @@ function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
                 //color: genColor()
         });
     }
-    World.add(engine.world, [ground, ceiling, leftWall, rightWall, ...boxes]);
+    if (doneOnce === false) {
+        World.add(engine.world, [ground, ceiling, leftWall, rightWall, ...boxes]);
+    }
     steveio.add();
     steve.add();
-    Engine.run(engine);
+    if (doneOnce === false) {
+        Engine.run(engine);
+    }
+    doneOnce = true;
     gameMode = "play";
 }
 let effects = [];
@@ -169,14 +181,14 @@ function draw() {
     if (gameMode === "play") {
         fill(200);
         noStroke();
-        boxes.forEach(box => {
+        /*boxes.forEach(box => {
             drawVertices(box.vertices);
             const gravity = engine.world.gravity;
             Body.applyForce(box, box.position, {
                 x: -gravity.x * gravity.scale * box.mass,
                 y: -gravity.y * gravity.scale * box.mass
             });
-        })
+        })*/
         drawVertices(ground.vertices);
         drawVertices(ceiling.vertices);
         drawVertices(leftWall.vertices);
@@ -306,6 +318,7 @@ function displayVictor() {
         restartButton.onclick = inMultiplayerFight ? (() => {
             gameMode = "load";
             displayRoomLobby(roomPartner);
+            displayRoomChat();
         }) : singlePlayerSelection;
         menu.appendChild(restartButton);
         victorDisplayed = true;

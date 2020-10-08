@@ -439,7 +439,7 @@ function Person({
         },
         remove() {
             inGame = false;
-            World.remove(engine.world, [head, neck, torso, /* arm1, arm2,*/ upperLeg1, upperLeg2, lowerLeg1, lowerLeg2, hipJoint1, hipJoint2, knee1, knee2, upperArm1, upperArm2, shoulder1, shoulder2, lowerArm1, lowerArm2, elbow1, elbow2, weaponBox, weaponAttachment /*foot1, foot2, ankle1, ankle2*/ /*hipConstraint1, hipConstraint2, ankleConstraint1, ankleConstraint2*/ ]);
+            World.remove(engine.world, [head, neck, torso, /*arm1, arm2,*/ upperLeg1, upperLeg2, lowerLeg1, lowerLeg2, hipJoint1, hipJoint2, knee1, knee2, upperArm1, upperArm2, shoulder1, shoulder2, lowerArm1, lowerArm2, elbow1, elbow2, weaponBox, weaponAttachment /*foot1, foot2, ankle1, ankle2 hipConstraint1, hipConstraint2, ankleConstraint1, ankleConstraint2*/ ]);
         },
         draw() {
             this.bodyParts.forEach(part => {
