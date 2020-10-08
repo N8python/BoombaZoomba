@@ -390,7 +390,7 @@ const openLobby = () => {
     chatLog.id = "chatLog";
     const chatInput = document.createElement("input");
     chatInput.classList.add("w3-round-xlarge")
-    chatInput.style.marginLeft = "42px";
+    chatInput.style.marginLeft = "110px";
     chatInput.placeholder = `Message Here...`;
     chatInput.style.width = "200px";
     chatInput.style.fontFamily = "'Ubuntu', sans-serif";
@@ -404,7 +404,7 @@ const openLobby = () => {
     randomMatch.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     randomMatch.innerHTML = "Random Match";
-    randomMatch.style.marginLeft = "42px";
+    randomMatch.style.marginLeft = "105px";
     randomMatch.onclick = () => {
         menu.innerHTML = `<h1 style="font-size: 60px; margin-left: 100px;" class="w3-text-white">Waiting...</h1>`;
         socket.emit("addToRWaiting", {
@@ -416,7 +416,7 @@ const openLobby = () => {
     createMatch.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     createMatch.innerHTML = "Create Match";
-    createMatch.style.marginLeft = "0px";
+    createMatch.style.marginLeft = "35px";
     createMatch.onclick = () => {
         socket.emit("createCustomRoom", { username, id });
     }
@@ -437,14 +437,17 @@ const openLobby = () => {
         })
     }
     menu.appendChild(chatLog);
-    menu.appendChild(chatInput);
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(randomMatch);
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(createMatch);
-    menu.appendChild(joinMatch);
+    const group = document.createElement("div");
+    group.style.textAlign = "left";
+    group.appendChild(chatInput);
+    group.appendChild(document.createElement("br"));
+    group.appendChild(document.createElement("br"));
+    group.appendChild(randomMatch);
+    group.appendChild(document.createElement("br"));
+    group.appendChild(document.createElement("br"));
+    group.appendChild(createMatch);
+    group.appendChild(joinMatch);
+    menu.appendChild(group);
     displayLobbyChat();
 }
 const displayLobbyChat = () => {
@@ -501,7 +504,7 @@ const displayRoomLobby = (partner) => {
     }
     const fightButton = document.createElement("button");
     fightButton.innerHTML = "Fight";
-    fightButton.style.marginLeft = "100px";
+    fightButton.style.marginLeft = "150px";
     fightButton.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     fightButton.onclick = () => {
@@ -509,7 +512,7 @@ const displayRoomLobby = (partner) => {
     }
     const leaveButton = document.createElement("button");
     leaveButton.innerHTML = "Leave";
-    leaveButton.style.marginLeft = "100px";
+    leaveButton.style.marginLeft = "150px";
     leaveButton.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     leaveButton.onclick = () => {
@@ -519,6 +522,7 @@ const displayRoomLobby = (partner) => {
     menu.appendChild(title);
     menu.appendChild(chatLog);
     const group = document.createElement("div");
+    group.style.textAlign = "left";
     group.appendChild(chatInput);
     group.appendChild(document.createElement("br"));
     group.appendChild(document.createElement("br"));
