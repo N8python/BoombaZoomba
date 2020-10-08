@@ -48,6 +48,9 @@ io.on("connection", socket => {
     }, 1000);
     console.log("New user connected.");
     let id = +Math.random().toString().split(".")[1];
+    socket.setCurrRoom = (rm) => {
+        currRoom = rm;
+    }
     socket.emit("idSent", {
         id
     });
@@ -83,6 +86,8 @@ io.on("connection", socket => {
             peeps[0].socket.join(roomName);
             peeps[1].socket.join(roomName);
             currRoom = { roomName, people: peeps, chat: [] };
+            peeps[0].socket.setCurrRoom(currRoom);
+            peeps[1].socket.setCurrRoom(currRoom);
             matchRooms.push({ roomName, people: peeps, chat: [] });
         }
     });
@@ -105,9 +110,9 @@ io.on("connection", socket => {
     });
     socket.on("takeDownRoom", ({ roomName }) => {
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
-        room.people.forEach(({ socket }) => {
-            socket.emit("leaveRoom", {});
-            socket.leave(roomName);
+        room.people.forEach(({ socket: s }) => {
+            s.emit("leaveRoom", { displayMessage: s !== socket });
+            s.leave(roomName);
         });
         matchRooms.splice(matchRooms.indexOf(room), 1);
         currRoom = undefined;

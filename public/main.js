@@ -545,12 +545,20 @@ socket.on("win", () => {
     victor = steveio;
     displayVictor();
 });
-socket.on("leaveRoom", ({ disconnected }) => {
+socket.on("leaveRoom", ({ disconnected, displayMessage }) => {
     if (disconnected) {
         Swal.fire({
             title: 'Your partner disconnected!',
             text: 'You have been returned to the main lobby.',
             icon: 'error',
+            confirmButtonText: 'Ok.'
+        })
+    }
+    if (displayMessage) {
+        Swal.fire({
+            title: "Your partner left the room!",
+            text: "You have been returned to the main lobby.",
+            icon: "error",
             confirmButtonText: 'Ok.'
         })
     }
