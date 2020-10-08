@@ -791,7 +791,7 @@ function Person({
                 "knee2": knee2,
                 "weaponAttachment": weaponAttachment
             })[body]);
-            World.remove(engine.world, [toRemove]);
+            World.remove(engine.world, toRemove);
         }
     }
 }
