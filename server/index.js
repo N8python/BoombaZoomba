@@ -91,6 +91,9 @@ io.on("connection", socket => {
             socket.leave(roomName);
         });
         matchRooms.splice(matchRooms.indexOf(room), 1);
+    });
+    socket.on("removeConstraintPuppet", ({ remove, roomName }) => {
+        socket.broadcast.to(roomName).emit("rmCPuppet", remove);
     })
 });
 server.listen(port, () => {

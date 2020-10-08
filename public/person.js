@@ -660,6 +660,7 @@ function Person({
                             }
                             if (!puppet) {
                                 World.remove(engine.world, [neck]);
+                                socket.emit("removeConstraintPuppet", { remove: ["neck"], roomName })
                             }
                             deadBodyParts.push(torso);
                         case torso:
@@ -680,6 +681,7 @@ function Person({
                             deadBodyParts.push(weaponBox);
                             if (!puppet) {
                                 World.remove(engine.world, [neck, shoulder1, shoulder2, elbow1, elbow2, hipJoint1, hipJoint2, knee1, knee2, weaponAttachment]);
+                                socket.emit("removeConstraintPuppet", { remove: ["neck", "shoulder1", "shoulder2", "elbow1", "elbow2", "hipJoint1", "hipJoint2", "knee1", "knee2", "weaponAttachment"], roomName });
                             }
                             break;
                         case upperArm1:
@@ -687,45 +689,53 @@ function Person({
                             deadBodyParts.push(weaponBox);
                             if (!puppet) {
                                 World.remove(engine.world, [shoulder1, elbow1]);
+                                socket.emit("removeConstraintPuppet", { remove: ["shoulder1", "elbow1"], roomName });
                             }
                             break;
                         case upperArm2:
                             deadBodyParts.push(lowerArm2);
                             if (!puppet) {
                                 World.remove(engine.world, [shoulder2, elbow2]);
+                                socket.emit("removeConstraintPuppet", { remove: ["shoulder2", "elbow2"], roomName });
                             }
                             break;
                         case lowerArm1:
                             deadBodyParts.push(weaponBox);
                             if (!puppet) {
                                 World.remove(engine.world, [elbow1]);
+                                socket.emit("removeConstraintPuppet", { remove: ["elbow1"], roomName });
                             }
                             break;
                         case lowerArm2:
                             if (!puppet) {
                                 World.remove(engine.world, [elbow2]);
+                                socket.emit("removeConstraintPuppet", { remove: ["elbow2"], roomName });
                             }
                             break;
                         case upperLeg1:
                             deadBodyParts.push(lowerLeg1);
                             if (!puppet) {
                                 World.remove(engine.world, [hipJoint1, knee1]);
+                                socket.emit("removeConstraintPuppet", { remove: ["hipJoint1", "knee1"], roomName });
                             }
                             break;
                         case upperLeg2:
                             deadBodyParts.push(lowerLeg2);
                             if (!puppet) {
                                 World.remove(engine.world, [hipJoint2, knee2]);
+                                socket.emit("removeConstraintPuppet", { remove: ["hipJoint2", "knee2"], roomName });
                             }
                             break;
                         case lowerLeg1:
                             if (!puppet) {
                                 World.remove(engine.world, [knee1]);
+                                socket.emit("removeConstraintPuppet", { remove: ["knee1"], roomName });
                             }
                             break;
                         case lowerLeg2:
                             if (!puppet) {
                                 World.remove(engine.world, [knee2]);
+                                socket.emit("removeConstraintPuppet", { remove: ["knee2"], roomName });
                             }
                             break;
                     }
@@ -766,6 +776,22 @@ function Person({
         },
         setHealth(hp) {
             puppetHealth = hp;
+        },
+        removeJoints(remove) {
+            // [neck, shoulder1, shoulder2, elbow1, elbow2, hipJoint1, hipJoint2, knee1, knee2, weaponAttachment]
+            const toRemove = remove.map(body => ({
+                "neck": neck,
+                "shoulder1": shoulder1,
+                "shoulder2": shoulder2,
+                "elbow1": elbow1,
+                "elbow2": elbow2,
+                "hipJoint1": hipJoint1,
+                "hipJoint2": hipJoint2,
+                "knee1": knee1,
+                "knee2": knee2,
+                "weaponAttachment": weaponAttachment
+            })[body]);
+            World.remove(engine.world, [toRemove]);
         }
     }
 }

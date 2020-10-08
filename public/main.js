@@ -534,6 +534,9 @@ socket.on("win", () => {
 })
 socket.on("leaveRoom", () => {
     openLobby();
+});
+socket.on("rmCPuppet", remove => {
+    steve.removeJoints(remove);
 })
 
 function sendMessage(message) {
