@@ -658,7 +658,9 @@ function Person({
                                 displayVictor();
                                 socket.emit("playerDeath", { roomName });
                             }
-                            World.remove(engine.world, [neck]);
+                            if (!puppet) {
+                                World.remove(engine.world, [neck]);
+                            }
                             deadBodyParts.push(torso);
                         case torso:
                             if (!puppet) {
@@ -676,37 +678,55 @@ function Person({
                             deadBodyParts.push(lowerLeg1);
                             deadBodyParts.push(lowerLeg2);
                             deadBodyParts.push(weaponBox);
-                            World.remove(engine.world, [neck, shoulder1, shoulder2, elbow1, elbow2, hipJoint1, hipJoint2, knee1, knee2, weaponAttachment]);
+                            if (!puppet) {
+                                World.remove(engine.world, [neck, shoulder1, shoulder2, elbow1, elbow2, hipJoint1, hipJoint2, knee1, knee2, weaponAttachment]);
+                            }
                             break;
                         case upperArm1:
                             deadBodyParts.push(lowerArm1);
                             deadBodyParts.push(weaponBox);
-                            World.remove(engine.world, [shoulder1, elbow1]);
+                            if (!puppet) {
+                                World.remove(engine.world, [shoulder1, elbow1]);
+                            }
                             break;
                         case upperArm2:
                             deadBodyParts.push(lowerArm2);
-                            World.remove(engine.world, [shoulder2, elbow2]);
+                            if (!puppet) {
+                                World.remove(engine.world, [shoulder2, elbow2]);
+                            }
                             break;
                         case lowerArm1:
                             deadBodyParts.push(weaponBox);
-                            World.remove(engine.world, [elbow1]);
+                            if (!puppet) {
+                                World.remove(engine.world, [elbow1]);
+                            }
                             break;
                         case lowerArm2:
-                            World.remove(engine.world, [elbow2]);
+                            if (!puppet) {
+                                World.remove(engine.world, [elbow2]);
+                            }
                             break;
                         case upperLeg1:
                             deadBodyParts.push(lowerLeg1);
-                            World.remove(engine.world, [hipJoint1, knee1]);
+                            if (!puppet) {
+                                World.remove(engine.world, [hipJoint1, knee1]);
+                            }
                             break;
                         case upperLeg2:
                             deadBodyParts.push(lowerLeg2);
-                            World.remove(engine.world, [hipJoint2, knee2]);
+                            if (!puppet) {
+                                World.remove(engine.world, [hipJoint2, knee2]);
+                            }
                             break;
                         case lowerLeg1:
-                            World.remove(engine.world, [knee1]);
+                            if (!puppet) {
+                                World.remove(engine.world, [knee1]);
+                            }
                             break;
                         case lowerLeg2:
-                            World.remove(engine.world, [knee2]);
+                            if (!puppet) {
+                                World.remove(engine.world, [knee2]);
+                            }
                             break;
                     }
                 }
