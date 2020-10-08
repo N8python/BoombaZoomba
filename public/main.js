@@ -416,14 +416,26 @@ const openLobby = () => {
     createMatch.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     createMatch.innerHTML = "Create Match";
-    createMatch.setAttribute("disabled", "true");
     createMatch.style.marginLeft = "0px";
+    createMatch.onclick = () => {
+        socket.emit("createCustomRoom", { username, id });
+    }
     const joinMatch = document.createElement("button");
     joinMatch.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
     joinMatch.innerHTML = "Join Match";
-    joinMatch.setAttribute("disabled", "true");
     joinMatch.style.marginLeft = "20px";
+    joinMatch.onclick = () => {
+        Swal.fire({
+            title: "Enter Room Code",
+            input: "text",
+            showCancelButton: true
+        }).then(({ value }) => {
+            if (value) {
+                socket.emit("attemptRoomJoin", { roomName: value, username, id });
+            }
+        })
+    }
     menu.appendChild(chatLog);
     menu.appendChild(chatInput);
     menu.appendChild(document.createElement("br"));
@@ -459,7 +471,10 @@ const displayRoomChat = () => {
 }
 const displayRoomLobby = (partner) => {
     roomName = partner.roomName;
-    menu.innerHTML = `<h1 class="w3-text-white">Partner Found: ${partner.username}</h1>`;
+    menu.innerHTML = "";
+    const title = document.createElement("h1");
+    title.classList.add("w3-text-white");
+    title.innerHTML = partner.username !== undefined ? `Partner Found: ${partner.username}` : `Room Code: ${roomName}`;
     const chatLog = document.createElement("div");
     chatLog.classList.add("w3-white", "w3-round-xlarge");
     chatLog.style.padding = "4px";
@@ -501,14 +516,17 @@ const displayRoomLobby = (partner) => {
         openLobby();
         socket.emit("takeDownRoom", { roomName });
     }
+    menu.appendChild(title);
     menu.appendChild(chatLog);
-    menu.appendChild(chatInput);
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(fightButton);
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(document.createElement("br"));
-    menu.appendChild(leaveButton);
+    const group = document.createElement("div");
+    group.appendChild(chatInput);
+    group.appendChild(document.createElement("br"));
+    group.appendChild(document.createElement("br"));
+    group.appendChild(fightButton);
+    group.appendChild(document.createElement("br"));
+    group.appendChild(document.createElement("br"));
+    group.appendChild(leaveButton);
+    menu.appendChild(group);
 }
 document.getElementById("singleplayer").onclick = singlePlayerSelection;
 document.getElementById("multiplayer").onclick = askUsername;
@@ -529,6 +547,9 @@ socket.on("roomMessageRecord", messages => {
 socket.on("partnerFound", partner => {
     displayRoomLobby(partner);
     roomPartner = partner;
+})
+socket.on("roomCreated", ({ roomName }) => {
+    displayRoomLobby({ roomName });
 })
 socket.on("startFight", ({ side, leftColor, rightColor }) => {
     menu.innerHTML = "";
@@ -564,6 +585,14 @@ socket.on("leaveRoom", ({ disconnected, displayMessage }) => {
     }
     openLobby();
 });
+socket.on("roomJoinFail", () => {
+    Swal.fire({
+        title: 'Invalid Room Code!',
+        text: 'No room with that code exists.',
+        icon: 'error',
+        confirmButtonText: 'Ok.'
+    })
+})
 socket.on("rmCPuppet", remove => {
     steve.removeJoints(remove);
 })

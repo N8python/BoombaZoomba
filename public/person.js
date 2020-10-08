@@ -573,6 +573,14 @@ function Person({
                 circle(-7 + xOffset, -2 + yOffset, 5);
                 circle(7 + xOffset, -2 + yOffset, 5);
                 pop();
+                if (this === steveio) {
+                    noStroke();
+                    fill(255, 255, 255, 255 - step * 2);
+                    textAlign(CENTER);
+                    textSize(20);
+                    text("You", head.position.x, head.position.y - 20);
+                    stroke(0);
+                }
                 /*stroke(255, 0, 0);
                 drawConstraint(neck);
                 drawConstraint(hipJoint1);

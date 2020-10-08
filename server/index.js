@@ -18,6 +18,7 @@ const http = require("http");
 const express = require("express");
 const socketIO = require("socket.io");
 const { match } = require("assert");
+const randomWords = require('random-words');
 const publicPath = path.join(__dirname, "../public");
 const port = process.env.PORT || 3000;
 let app = express();
@@ -91,6 +92,27 @@ io.on("connection", socket => {
             matchRooms.push({ roomName, people: peeps, chat: [] });
         }
     });
+    socket.on("createCustomRoom", ({ username, id }) => {
+        const roomName = randomWords({ exactly: 3, join: ' ', maxLength: 5 });
+        socket.join(roomName);
+        currRoom = { roomName, people: [{ username, id, socket }], chat: [] };
+        socket.setCurrRoom(currRoom);
+        matchRooms.push({ roomName, people: [{ username, id, socket }], chat: [] });
+        socket.emit("roomCreated", { roomName });
+    });
+    socket.on("attemptRoomJoin", ({ roomName, username, id }) => {
+        const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
+        if (room) {
+            socket.join(roomName);
+            currRoom = room;
+            socket.setCurrRoom(room);
+            room.people[0].socket.emit("partnerFound", { username, id, roomName });
+            socket.emit("partnerFound", { username: room.people[0].username, id: room.people[0].id, roomName })
+            room.people.push({ socket, username, id });
+        } else {
+            socket.emit("roomJoinFail", {});
+        }
+    });
     socket.on("startFightMessage", ({ roomName }) => {
         //io.to(roomName).emit("startFight", {});
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
@@ -122,7 +144,7 @@ io.on("connection", socket => {
     })
     socket.on("heartbeat", (newStamp) => {
         lastMessage = newStamp;
-    })
+    });
 });
 server.listen(port, () => {
     console.log(`Server is up on port ${port}`);
