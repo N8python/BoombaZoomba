@@ -544,13 +544,24 @@ socket.on("receiveBodyData", ({ bodyData, bodyPosData, bodyAngData, bodyAngVData
 socket.on("win", () => {
     victor = steveio;
     displayVictor();
-})
-socket.on("leaveRoom", () => {
+});
+socket.on("leaveRoom", ({ disconnected }) => {
+    if (disconnected) {
+        Swal.fire({
+            title: 'Your partner disconnected!',
+            text: 'You have been returned to the main lobby.',
+            icon: 'error',
+            confirmButtonText: 'Ok.'
+        })
+    }
     openLobby();
 });
 socket.on("rmCPuppet", remove => {
     steve.removeJoints(remove);
 })
+setInterval(() => {
+    socket.emit("heartbeat", Date.now());
+}, 1000)
 
 function sendMessage(message) {
     socket.emit("messageSend", {

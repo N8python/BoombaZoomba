@@ -28,6 +28,24 @@ let lobbyChat = [];
 const randomWaitingRoom = [];
 const matchRooms = [];
 io.on("connection", socket => {
+    let currRoom;
+    let lastMessage = Date.now();
+    let heartbeatInterval = setInterval(() => {
+        const timeDiff = Date.now() - lastMessage;
+        if (timeDiff > 2000) {
+            if (currRoom) {
+                const room = matchRooms.find(({ roomName: rn }) => rn === currRoom.roomName);
+                if (room) {
+                    room.people.forEach(({ socket }) => {
+                        socket.emit("leaveRoom", { disconnected: true });
+                        socket.leave(currRoom.roomName);
+                    });
+                    matchRooms.splice(matchRooms.indexOf(room), 1);
+                }
+            }
+            clearInterval(heartbeatInterval);
+        }
+    }, 1000);
     console.log("New user connected.");
     let id = +Math.random().toString().split(".")[1];
     socket.emit("idSent", {
@@ -64,6 +82,7 @@ io.on("connection", socket => {
             peeps[1].socket.emit("partnerFound", { username: peeps[0].username, id: peeps[0].id, roomName });
             peeps[0].socket.join(roomName);
             peeps[1].socket.join(roomName);
+            currRoom = { roomName, people: peeps, chat: [] };
             matchRooms.push({ roomName, people: peeps, chat: [] });
         }
     });
@@ -91,9 +110,13 @@ io.on("connection", socket => {
             socket.leave(roomName);
         });
         matchRooms.splice(matchRooms.indexOf(room), 1);
+        currRoom = undefined;
     });
     socket.on("removeConstraintPuppet", ({ remove, roomName }) => {
         socket.broadcast.to(roomName).emit("rmCPuppet", remove);
+    })
+    socket.on("heartbeat", (newStamp) => {
+        lastMessage = newStamp;
     })
 });
 server.listen(port, () => {
