@@ -498,8 +498,14 @@ function Person({
                     const toMouseWeapon = vecTo(weaponBox.position.x, weaponBox.position.y, mouseX, mouseY, 0.7);
                     setVelocity(lowerArm1, { x: lowerArm1.velocity.x + toMouse1.x, y: lowerArm1.velocity.y + toMouse1.y });
                     setVelocity(lowerArm2, { x: lowerArm2.velocity.x + toMouse2.x, y: lowerArm2.velocity.y + toMouse2.y });
-                    setVelocity(weaponBox, { x: weaponBox.velocity.x + toMouseWeapon.x, y: weaponBox.velocity.y + toMouseWeapon.y })
-                    speed += toMouse1.x * 0.1;
+                    setVelocity(weaponBox, { x: weaponBox.velocity.x + toMouseWeapon.x, y: weaponBox.velocity.y + toMouseWeapon.y });
+                    if (deadBodyParts.includes(weaponBox)) {
+                        const toMouseHead = vecTo(head.position.x, head.position.y, mouseX, mouseY, 1);
+                        setVelocity(head, { x: head.velocity.x + toMouseHead.x, y: head.velocity.y + toMouseHead.y });
+                        speed += toMouseHead.x * 0.1;
+                    } else {
+                        speed += toMouse1.x * 0.1;
+                    }
                 }
                 if (this === steve && this.opponent && !this.opponent.deadBodyParts.includes(this.opponent.head) && !puppet) {
                     if (!this.deadBodyParts.includes(lowerArm1)) {

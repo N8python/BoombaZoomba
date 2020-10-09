@@ -226,20 +226,20 @@ function draw() {
             })
             //prevCollisions = [...steve.collisionPoints(), ...steveio.collisionPoints()];
         effects.forEach(system => {
-            system.run();
-            strokeWeight(1);
-        })
-        if (RIGHT && steveio.speed < 5) {
-            steveio.speed += 0.25;
-        } else
-        if (LEFT && steveio.speed > -5) {
-            steveio.speed -= 0.25;
-        } else if (steveio.touchingGround()) {
-            steveio.speed *= 0.8;
-        }
-        if (DOWN) {
-            steveio.down();
-        }
+                system.run();
+                strokeWeight(1);
+            })
+            /*if (RIGHT && steveio.speed < 5) {
+                steveio.speed += 0.25;
+            } else
+            if (LEFT && steveio.speed > -5) {
+                steveio.speed -= 0.25;
+            } else if (steveio.touchingGround()) {
+                steveio.speed *= 0.8;
+            }
+            if (DOWN) {
+                steveio.down();
+            }*/
         if (steveio.touchingGround()) {
             steveio.speed *= 0.9;
         } else {
@@ -287,7 +287,7 @@ function keyPressed() {
 function keyReleased() {
     if (gameMode === "play") {
         if (key === "ArrowUp") {
-            steveio.jump();
+            //steveio.jump();
         }
         if (key === "ArrowRight") {
             RIGHT = false;
