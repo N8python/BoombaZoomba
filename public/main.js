@@ -25,6 +25,7 @@ let roomChat = [];
 let roomPartner;
 let roomName;
 let inMultiplayerFight;
+let fightTimer = 0;
 
 function preload() {
     dagger = loadImage("dagger.png");
@@ -89,6 +90,7 @@ function setup() {
 let doneOnce = false;
 
 function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
+    fightTimer = 60 * 3;
     victorDisplayed = false;
     let steveWeapon;
     let steveioWeapon;
@@ -179,6 +181,11 @@ let prevCollisions = [];
 function draw() {
     background(0);
     if (gameMode === "play") {
+        if (fightTimer > 0) {
+            fill(255);
+            textSize(50);
+            text(ceil(fightTimer / 60), 300, 300);
+        }
         fill(200);
         noStroke();
         /*boxes.forEach(box => {
@@ -248,6 +255,7 @@ function draw() {
         if (inMultiplayerFight) {
             socket.emit("sendBodyData", { roomName, bodyData: steveio.getVelocities(), bodyPosData: steveio.getPositions(), bodyAngData: steveio.getAngles(), bodyAngVData: steveio.getAngleVels(), health: steveio.getHealth() });
         }
+        fightTimer -= 1;
     }
 }
 
@@ -269,7 +277,7 @@ function drawConstraint(c) {
 
 function keyPressed() {
     if (gameMode === "play") {
-        if (key === " ") {
+        if (key === " " && fightTimer < 0) {
             steveio.jump();
         }
         if (key === "ArrowRight") {

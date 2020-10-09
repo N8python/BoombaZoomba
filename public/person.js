@@ -492,7 +492,7 @@ function Person({
                     }
                 }
                 healthLost *= cowardice;
-                if (keyIsPressed && key === " " && this === steveio) {
+                if (keyIsPressed && key === " " && this === steveio && fightTimer < 0) {
                     const toMouse1 = vecTo(lowerArm1.position.x, lowerArm1.position.y, mouseX, mouseY, 1);
                     const toMouse2 = vecTo(lowerArm2.position.x, lowerArm2.position.y, mouseX, mouseY, 1);
                     const toMouseWeapon = vecTo(weaponBox.position.x, weaponBox.position.y, mouseX, mouseY, 0.7);
@@ -507,7 +507,7 @@ function Person({
                         speed += toMouse1.x * 0.1;
                     }
                 }
-                if (this === steve && this.opponent && !this.opponent.deadBodyParts.includes(this.opponent.head) && !puppet) {
+                if (this === steve && this.opponent && !this.opponent.deadBodyParts.includes(this.opponent.head) && !puppet && fightTimer < 0) {
                     if (!this.deadBodyParts.includes(lowerArm1)) {
                         const c = healthLost > 10 ? -1 : 1;
                         const toMouse1 = vecTo(lowerArm1.position.x, lowerArm1.position.y, this.opponent.head.position.x, this.opponent.head.position.y, c);
