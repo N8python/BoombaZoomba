@@ -44,6 +44,11 @@ io.on("connection", socket => {
                     matchRooms.splice(matchRooms.indexOf(room), 1);
                 }
             }
+            if (randomWaitingRoom.length === 1) {
+                if (randomWaitingRoom[0].socket === socket) {
+                    randomWaitingRoom.pop();
+                }
+            }
             clearInterval(heartbeatInterval);
         }
     }, 1000);
