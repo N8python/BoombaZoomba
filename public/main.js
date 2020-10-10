@@ -294,8 +294,17 @@ function drawVertices(vertices) {
 function drawConstraint(c) {
     line(c.bodyA.position.x + c.pointA.x, c.bodyA.position.y + c.pointA.y, c.bodyB.position.x + c.pointB.x, c.bodyB.position.y + c.pointB.y);
 }
+let volSetting = true;
 
 function keyPressed() {
+    if (key === "m" || key === "M") {
+        if (volSetting) {
+            masterVolume(0);
+        } else {
+            masterVolume(1);
+        }
+        volSetting = !volSetting;
+    }
     if (gameMode === "play") {
         if (key === " " && fightTimer < 0) {
             steveio.jump();
