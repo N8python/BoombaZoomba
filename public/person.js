@@ -419,6 +419,9 @@ function Person({
     let movingLegs = 0;
     let step = 0;
     let speed = 0;
+    let dead = false;
+    let prevCollidedBodies = [];
+    let hurtCooldown = 0;
 
     function setVelocity(body, vec) {
         if (!deadBodyParts.includes(body)) {
@@ -442,12 +445,54 @@ function Person({
             World.remove(engine.world, [head, neck, torso, /*arm1, arm2,*/ upperLeg1, upperLeg2, lowerLeg1, lowerLeg2, hipJoint1, hipJoint2, knee1, knee2, upperArm1, upperArm2, shoulder1, shoulder2, lowerArm1, lowerArm2, elbow1, elbow2, weaponBox, weaponAttachment /*foot1, foot2, ankle1, ankle2 hipConstraint1, hipConstraint2, ankleConstraint1, ankleConstraint2*/ ]);
         },
         draw() {
+            hurtCooldown--;
             this.bodyParts.forEach(part => {
                 if (deadBodyParts.includes(part)) {
                     part.restitution = 0;
                 }
             })
             if (inGame) {
+                if (weaponBox.angularSpeed > 0.2 && !sounds.out.isPlaying()) {
+                    sounds.out.setVolume(Math.random() * 0.3);
+                    sounds.out.play();
+                }
+                if (Detector.collisions([
+                        [steve.weapon, steveio.weapon],
+                    ], engine).length > 0) {
+                    if (Math.random() < 0.5) {
+                        if (!sounds.clash.isPlaying()) {
+                            sounds.clash.setVolume((steve.weapon.angularSpeed + steveio.weapon.angularSpeed) * 2);
+                            sounds.clash.rate(random(1, 2));
+                            sounds.clash.play();
+                        }
+                    } else {
+                        if (!sounds.swing.isPlaying()) {
+                            sounds.swing.setVolume((steve.weapon.angularSpeed + steveio.weapon.angularSpeed) * 2);
+                            sounds.swing.rate(random(1, 2));
+                            sounds.swing.play();
+                        }
+                    }
+                }
+                if (Detector.collisions([
+                        [weaponBox, ground],
+                        [weaponBox, ceiling],
+                        [weaponBox, leftWall],
+                        [weaponBox, rightWall],
+                    ], engine).length > 0 && Math.abs(weaponBox.velocity.y) > 1) {
+                    if (weapon === axe) {
+                        sounds.thud.rate(1);
+                        sounds.thud.setVolume(Math.abs(weaponBox.velocity.y) / 25);
+                        if (!sounds.thud.isPlaying()) {
+                            sounds.thud.play();
+                        }
+                    } else {
+                        sounds.thud.rate(2.5);
+                        sounds.thud.setVolume(Math.abs(weaponBox.velocity.y) / 50);
+                        if (!sounds.thud.isPlaying()) {
+                            sounds.thud.play();
+                        }
+                    }
+                }
                 if (speed > 0.025) {
                     if (step % 60 < 30) {
                         setVelocity(lowerLeg1, vecTo(lowerLeg1.position.x, lowerLeg1.position.y, torso.position.x + 50, torso.position.y + 75, 2));
@@ -661,6 +706,14 @@ function Person({
         takeDamage() {
             Detector.collisions(this.bodyParts.map(x => [this.opponent.weapon, x]).concat(this.bodyParts.map(x => [x, this.opponent.weapon])), engine).forEach(x => {
                 const body = x.bodyA === this.opponent.weapon ? x.bodyB : x.bodyA;
+                if (body !== weaponBox && !deadBodyParts.includes(body) && !dead && !prevCollidedBodies.includes(body) && hurtCooldown < 0) {
+                    if (!sounds.hit.isPlaying()) {
+                        sounds.hit.setVolume(0.1);
+                        sounds.hit.rate(random(1, 2));
+                        sounds.hit.play();
+                        hurtCooldown = random(30, 60);
+                    }
+                }
                 body.health -= this.opponent.weapon.angularSpeed * 5;
                 healthLost += this.opponent.weapon.angularSpeed * 5;
                 if (body.health < 0) {
@@ -677,6 +730,10 @@ function Person({
                                 socket.emit("removeConstraintPuppet", { remove: ["neck"], roomName })
                             }
                             deadBodyParts.push(torso);
+                            if (!sounds.death.isPlaying() && !dead && !puppet) {
+                                sounds.death.play();
+                            }
+                            dead = true;
                         case torso:
                             if (!puppet) {
                                 victor = this.opponent;
@@ -697,6 +754,10 @@ function Person({
                                 World.remove(engine.world, [neck, shoulder1, shoulder2, elbow1, elbow2, hipJoint1, hipJoint2, knee1, knee2, weaponAttachment]);
                                 socket.emit("removeConstraintPuppet", { remove: ["neck", "shoulder1", "shoulder2", "elbow1", "elbow2", "hipJoint1", "hipJoint2", "knee1", "knee2", "weaponAttachment"], roomName });
                             }
+                            if (!sounds.death.isPlaying() && !dead && !puppet) {
+                                sounds.death.play();
+                            }
+                            dead = true;
                             break;
                         case upperArm1:
                             deadBodyParts.push(lowerArm1);
@@ -754,7 +815,8 @@ function Person({
                             break;
                     }
                 }
-            })
+            });
+            prevCollidedBodies = Detector.collisions(this.bodyParts.map(x => [this.opponent.weapon, x]).concat(this.bodyParts.map(x => [x, this.opponent.weapon])), engine).map(x => x.bodyA === this.opponent.weapon ? x.bodyB : x.bodyA);
         },
         getVelocities() {
             return this.bodyParts.map(part => ({ x: part.velocity.x, y: part.velocity.y }));

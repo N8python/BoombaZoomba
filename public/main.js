@@ -26,11 +26,20 @@ let roomPartner;
 let roomName;
 let inMultiplayerFight;
 let fightTimer = 0;
+let sounds = {};
 
 function preload() {
     dagger = loadImage("dagger.png");
     sword = loadImage("sword.png");
     axe = loadImage("axe.png");
+    sounds.clash = loadSound("swordclash.mp3");
+    sounds.out = loadSound("swordout.mp3");
+    sounds.swing = loadSound("swordswing.mp3");
+    sounds.hit = loadSound("swordhit.mp3");
+    sounds.death = loadSound("death.mp3");
+    sounds.trumpet = loadSound("trumpet.mp3");
+    sounds.drag = loadSound("sworddrag.mp3");
+    sounds.thud = loadSound("thud.mp3");
 }
 
 function setup() {
@@ -254,6 +263,10 @@ function draw() {
         }
         if (inMultiplayerFight) {
             socket.emit("sendBodyData", { roomName, bodyData: steveio.getVelocities(), bodyPosData: steveio.getPositions(), bodyAngData: steveio.getAngles(), bodyAngVData: steveio.getAngleVels(), health: steveio.getHealth() });
+        }
+        if (fightTimer === 180) {
+            sounds.trumpet.setVolume(0.1);
+            sounds.trumpet.play();
         }
         fightTimer -= 1;
     }
@@ -574,9 +587,14 @@ socket.on("receiveBodyData", ({ bodyData, bodyPosData, bodyAngData, bodyAngVData
     steve.setAngleVels(bodyAngVData);
     steve.setHealth(health);
 });
+let deathSoundPlayed = false;
 socket.on("win", () => {
     victor = steveio;
     displayVictor();
+    if (!deathSoundPlayed) {
+        sounds.death.play();
+        deathSoundPlayed = true;
+    }
 });
 socket.on("leaveRoom", ({ disconnected, displayMessage }) => {
     if (disconnected) {
