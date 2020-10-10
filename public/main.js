@@ -40,6 +40,7 @@ function preload() {
     sounds.trumpet = loadSound("trumpet.mp3");
     sounds.drag = loadSound("sworddrag.mp3");
     sounds.thud = loadSound("thud.mp3");
+    sounds.background = loadSound("background.mp3");
 }
 
 function setup() {
@@ -268,7 +269,13 @@ function draw() {
             sounds.trumpet.setVolume(0.1);
             sounds.trumpet.play();
         }
+        if (fightTimer === 0) {
+            sounds.background.setVolume(0.1);
+            sounds.background.loop();
+        }
         fightTimer -= 1;
+    } else {
+        sounds.background.stop();
     }
 }
 
