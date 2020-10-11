@@ -20,17 +20,15 @@ const socketIO = require("socket.io");
 const { match } = require("assert");
 const randomWords = require('random-words');
 const publicPath = path.join(__dirname, "../public");
+const herokuOpen = require("heroku-open");
 const port = process.env.PORT || 3000;
 let app = express();
+if (herokuOpen()) {
+    app.get('*', function(req, res) {
+        res.redirect('https://' + req.headers.host + req.url);
+    });
+}
 app.use(express.static(publicPath));
-//if (process.env.NODE_ENV === 'production') {
-app.use((req, res, next) => {
-        if (req.header('x-forwarded-proto') !== 'https')
-            res.redirect(`https://${req.header('host')}${req.url}`)
-        else
-            next()
-    })
-    //}
 let server = http.createServer(app);
 let io = socketIO(server);
 let lobbyChat = [];
