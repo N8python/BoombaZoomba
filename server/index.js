@@ -22,17 +22,11 @@ const randomWords = require('random-words');
 const publicPath = path.join(__dirname, "../public");
 const herokuOpen = require("heroku-open");
 const enforce = require('express-sslify');
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 let app = express();
-//if (herokuOpen()) {
-/*app.get('*', function(req, res) {
-    if (req.protocol !== 'https' && !req.headers.host.startsWith("localhost")) {
-        res.redirect('https://' + req.headers.host + req.url);
-    }
-});*/
-//}
-app.use(enforce.HTTPS({ trustProtoHeader: true }));
-
+if (herokuOpen()) {
+    app.use(enforce.HTTPS({ trustProtoHeader: true }));
+}
 app.use(express.static(publicPath));
 let server = http.createServer(app);
 let io = socketIO(server);
