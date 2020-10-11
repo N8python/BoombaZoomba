@@ -215,11 +215,23 @@ function draw() {
         steveio.draw();
         steve.takeDamage();
         steveio.takeDamage();
+        textSize(13);
+        fill(0);
+        text("You", 120, 12);
+        text("Opponent", 460, 12);
         strokeWeight(2);
+        noFill();
         rect(1, 1, 102, 10);
         strokeWeight(0);
         fill(255 * (1 - steveio.getHealth()), 255 * steveio.getHealth(), 0)
         rect(2, 2, 100 * steveio.getHealth(), 8);
+        strokeWeight(1);
+        strokeWeight(2);
+        noFill();
+        rect(497, 1, 102, 10);
+        strokeWeight(0);
+        fill(255 * (1 - steve.getHealth()), 255 * steve.getHealth(), 0);
+        rect(498, 2, 100 * steve.getHealth(), 8);
         strokeWeight(1);
         [...steveio.collisionPoints(), ...steve.collisionPoints()].forEach((point) => {
             if (point && point.length !== 0) {
