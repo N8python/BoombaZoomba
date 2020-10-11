@@ -32,6 +32,10 @@ function preload() {
     dagger = loadImage("dagger.png");
     sword = loadImage("sword.png");
     axe = loadImage("axe.png");
+}
+
+function setup() {
+    createCanvas(600, 600);
     sounds.clash = loadSound("swordclash.mp3");
     sounds.out = loadSound("swordout.mp3");
     sounds.swing = loadSound("swordswing.mp3");
@@ -41,10 +45,6 @@ function preload() {
     sounds.drag = loadSound("sworddrag.mp3");
     sounds.thud = loadSound("thud.mp3");
     sounds.background = loadSound("background.mp3");
-}
-
-function setup() {
-    createCanvas(600, 600);
     engine = Engine.create();
     ground = Bodies.rectangle(width / 2, height + 25, width + 10, 100, {
         isStatic: true,
