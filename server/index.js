@@ -23,14 +23,14 @@ const publicPath = path.join(__dirname, "../public");
 const port = process.env.PORT || 3000;
 let app = express();
 app.use(express.static(publicPath));
-if (process.env.NODE_ENV === 'production') {
-    app.use((req, res, next) => {
+//if (process.env.NODE_ENV === 'production') {
+app.use((req, res, next) => {
         if (req.header('x-forwarded-proto') !== 'https')
             res.redirect(`https://${req.header('host')}${req.url}`)
         else
             next()
     })
-}
+    //}
 let server = http.createServer(app);
 let io = socketIO(server);
 let lobbyChat = [];
