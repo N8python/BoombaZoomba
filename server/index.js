@@ -25,7 +25,9 @@ const port = process.env.PORT || 3000;
 let app = express();
 if (herokuOpen()) {
     app.get('*', function(req, res) {
-        res.redirect('https://' + req.headers.host + req.url);
+        if (req.protocol !== 'https') {
+            res.redirect('https://' + req.headers.host + req.url);
+        }
     });
 }
 app.use(express.static(publicPath));
