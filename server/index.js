@@ -21,6 +21,7 @@ const { match } = require("assert");
 const randomWords = require('random-words');
 const publicPath = path.join(__dirname, "../public");
 const herokuOpen = require("heroku-open");
+const enforce = require('express-sslify');
 const port = process.env.PORT || 3000;
 let app = express();
 //if (herokuOpen()) {
@@ -30,6 +31,8 @@ let app = express();
     }
 });*/
 //}
+app.use(enforce.HTTPS({ trustProtoHeader: true }));
+
 app.use(express.static(publicPath));
 let server = http.createServer(app);
 let io = socketIO(server);
