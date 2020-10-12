@@ -4,3 +4,7 @@ h4,
 p {
     font-family: 'Righteous', cursive;
 }
+
+.graytext {
+    color: lightgray;
+}

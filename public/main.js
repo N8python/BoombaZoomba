@@ -631,8 +631,8 @@ const achievementHall = () => {
     achievementList.forEach(a => {
         achievementDisplay.innerHTML += `
             <div style="padding: 4px; max-height: 100px; overflow: scroll; border: 2px solid white;" class="w3-third w3-text-white w3-gray">
-            <h4>${a.title}</h4>
-            <p><em>${localProxy.achievements.includes(a.title) ? a.desc : "???..." }</em></p>
+            <h4 class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}">${a.title}</h4>
+            <p class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}"><em>${localProxy.achievements.includes(a.title) ? a.desc : "???..." }</em></p>
             </div>
         `;
     });
