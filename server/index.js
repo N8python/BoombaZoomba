@@ -112,7 +112,7 @@ io.on("connection", socket => {
     });
     socket.on("attemptRoomJoin", ({ roomName, username, id }) => {
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
-        if (room) {
+        if (room && room.people.length < 2) {
             socket.join(roomName);
             currRoom = room;
             socket.setCurrRoom(room);

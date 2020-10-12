@@ -871,6 +871,3 @@ function Person({
         }
     }
 }
-document.getElementById("instructions").onclick = () => {
-    document.getElementById("inModal").style.display = "block";
-}

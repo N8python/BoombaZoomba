@@ -27,6 +27,10 @@ let roomName;
 let inMultiplayerFight;
 let fightTimer = 0;
 let sounds = {};
+let currDifficulty;
+if (localProxy.achievements === undefined) {
+    localProxy.achievements = [];
+}
 
 function preload() {
     dagger = loadImage("dagger.png");
@@ -100,6 +104,7 @@ function setup() {
 let doneOnce = false;
 
 function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
+    currDifficulty = difficulty;
     fightTimer = 60 * 3;
     victorDisplayed = false;
     let steveWeapon;
@@ -121,7 +126,7 @@ function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
             steveWeapon = axe;
             steveioWeapon = sword;
             break;
-        case "Master":
+        case "Insane":
             steveCow = 0.9;
             steveWeapon = axe;
             steveioWeapon = dagger;
@@ -289,6 +294,7 @@ function draw() {
     } else {
         sounds.background.stop();
     }
+    achievements.render();
 }
 
 function drawCircle(body) {
@@ -357,6 +363,22 @@ function displayVictor() {
         if (inMultiplayerFight) {
             winner = "You";
         }
+        if (victor === steveio) {
+            switch (currDifficulty) {
+                case "Easy":
+                    achievements.add(pieceOfCake);
+                    break;
+                case "Medium":
+                    achievements.add(fightScene);
+                    break;
+                case "Hard":
+                    achievements.add(axeTheHead);
+                    break;
+                case "Insane":
+                    achievements.add(undying);
+                    break;
+            }
+        }
         const winMessage = (victor === steve && inMultiplayerFight) ? "Lost" : "Won"
         menu.innerHTML = `<h1 style="font-size: 60px; margin-left: ${winner === "You" ? 108 : 78}px" class="w3-text-white w3-animate-opacity">${winner} ${winMessage}</h1>`;
         const restartButton = document.createElement("button");
@@ -389,7 +411,7 @@ const singlePlayerSelection = () => {
     difficulty.innerHTML = `<option>Easy</option>
    <option>Medium</option>
    <option>Hard</option>
-   <option>Master</option>`;
+   <option>Insane</option>`;
     difficulty.style.marginLeft = "24px";
     difficulty.classList.add("w3-select");
     menu.appendChild(difficulty);
@@ -406,6 +428,15 @@ const singlePlayerSelection = () => {
         start(diffVal);
     }
     menu.appendChild(startButton);
+    const backButton = document.createElement("button");
+    backButton.innerHTML = "Back";
+    backButton.style.marginLeft = "32px";
+    backButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    backButton.onclick = mainMenu;
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"))
+    menu.appendChild(backButton);
 }
 const askUsername = () => {
     gameMode = "load";
@@ -421,6 +452,15 @@ const askUsername = () => {
         }
     }
     menu.appendChild(usernameBox);
+    const backButton = document.createElement("button");
+    backButton.innerHTML = "Back";
+    backButton.style.marginLeft = "32px";
+    backButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    backButton.onclick = mainMenu;
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"))
+    menu.appendChild(backButton);
 }
 const openLobby = () => {
     gameMode = "load";
@@ -581,8 +621,93 @@ const displayRoomLobby = (partner) => {
     group.appendChild(leaveButton);
     menu.appendChild(group);
 }
+const achievementHall = () => {
+    menu.innerHTML = `<h1 style="font-size: 60px;" class="w3-text-white">Achievements</h1>`;
+    const achievementDisplay = document.createElement("div");
+    achievementDisplay.classList.add("w3-text-white");
+    achievementDisplay.style.maxHeight = "300px";
+    achievementDisplay.style.maxWidth = "400px";
+    achievementDisplay.style.overflow = "scroll";
+    achievementList.forEach(a => {
+        achievementDisplay.innerHTML += `
+            <div style="padding: 4px; max-height: 100px; overflow: scroll; border: 2px solid white;" class="w3-third w3-text-white w3-gray">
+            <h4>${a.title}</h4>
+            <p><em>${localProxy.achievements.includes(a.title) ? a.desc : "???..." }</em></p>
+            </div>
+        `;
+    });
+    const backButton = document.createElement("button");
+    backButton.innerHTML = "Back";
+    backButton.style.marginLeft = "150px";
+    backButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    backButton.onclick = mainMenu;
+    /*
+    <br>
+        <br>
+        <button id="singleplayer" style="width:200px" class="w3-button w3-gray w3-xlarge w3-text-white w3-round">Singleplayer</button>
+        <br>
+        <br>
+        <button id="multiplayer" style="width:200px" class="w3-button w3-gray w3-xlarge w3-text-white w3-round">Multiplayer</button>
+        <br>
+        <br>
+        <button id="achievements" style="width:200px" class="w3-button w3-gray w3-xlarge w3-text-white w3-round">Achievements</button>
+        <br>
+        <br>
+        <button id="instructions" style="width:200px" class="w3-button w3-gray w3-xlarge w3-text-white w3-round">"Instructions"</button>*/
+
+    const group = document.createElement("div");
+    group.style.textAlign = "left";
+    group.appendChild(achievementDisplay);
+    group.appendChild(backButton);
+    menu.appendChild(group);
+}
+const mainMenu = () => {
+    menu.innerHTML = `<h1 style="font-size: 60px" class="w3-text-white">Boomba Zoomba</h1>`;
+    menu.appendChild(document.createElement("br"));
+    const singleplayer = document.createElement("button");
+    singleplayer.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    singleplayer.style.width = "200px";
+    singleplayer.innerHTML = "Singleplayer";
+    menu.appendChild(singleplayer);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    const multiplayer = document.createElement("button");
+    multiplayer.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    multiplayer.style.width = "200px";
+    multiplayer.innerHTML = "Multiplayer";
+    menu.appendChild(multiplayer);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    const achievements = document.createElement("button");
+    achievements.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    achievements.style.width = "200px";
+    achievements.innerHTML = "Achievements";
+    menu.appendChild(achievements);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
+    const instructions = document.createElement("button");
+    instructions.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    instructions.style.width = "200px";
+    instructions.innerHTML = "Instructions";
+    menu.appendChild(instructions);
+    singleplayer.onclick = singlePlayerSelection;
+    multiplayer.onclick = askUsername;
+    achievements.onclick = achievementHall;
+    instructions.onclick = () => {
+        document.getElementById("inModal").style.display = "block";
+    }
+};
 document.getElementById("singleplayer").onclick = singlePlayerSelection;
 document.getElementById("multiplayer").onclick = askUsername;
+document.getElementById("achievements").onclick = achievementHall;
+document.getElementById("instructions").onclick = () => {
+    document.getElementById("inModal").style.display = "block";
+}
 socket.on("connect", () => {
     console.log("Connected to server!");
 })
