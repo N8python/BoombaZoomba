@@ -1,12 +1,12 @@
-function displayAchievement({ title, desc, opacity }) {
+function displayAchievement({ title, desc, opacity, index }) {
     fill(150, 150, 150, opacity * 255);
-    rect(400, 0, 201, 100);
+    rect(400 - (index % 3) * 200, 0 + floor(index / 3) * 100, 201, 100);
     fill(255, 255, 255, opacity * 255);
     textAlign(CENTER);
     textSize(25);
-    text(title, 500, 30);
+    text(title, 500 - (index % 3) * 200, 30 + floor(index / 3) * 100);
     textSize(13);
-    text(desc, 500, 50);
+    text(desc, 500 - (index % 3) * 200, 50 + floor(index / 3) * 100);
 }
 const pieceOfCake = { title: "Piece of Cake", desc: "Beat easy difficulty. \n Easiest achievement of all time." };
 const fightScene = { title: "Fight Scene", desc: "Beat medium difficulty. \n A decent challenge." };
@@ -44,7 +44,7 @@ const achievements = {
             } else {
                 opacity = (240 - a.step) / 60;
             }
-            displayAchievement({ title: a.title, desc: a.desc, opacity });
+            displayAchievement({ title: a.title, desc: a.desc, opacity, index: i });
             a.step++;
             if (a.step > 240) {
                 this.currAchievements.splice(i, 1);
