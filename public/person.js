@@ -451,6 +451,11 @@ function Person({
                     part.restitution = 0;
                 }
             })
+            if (steve.deadBodyParts.includes(steve.head) && Detector.collisions([
+                    [weaponBox, steve.head]
+                ], engine).length > 0 && (abs(steve.head.velocity.x) > 7.5 || abs(steve.head.velocity.y) > 7.5)) {
+                achievements.add(headsUp);
+            }
             if (inGame) {
                 if (weaponBox.angularSpeed > 0.2 && !sounds.out.isPlaying()) {
                     sounds.out.setVolume(Math.random() * 0.3);

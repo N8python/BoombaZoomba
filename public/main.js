@@ -28,8 +28,11 @@ let inMultiplayerFight;
 let fightTimer = 0;
 let sounds = {};
 let currDifficulty;
-if (localProxy.achievements === undefined) {
-    localProxy.achievements = [];
+//if (localProxy.achievements === undefined) {
+localProxy.achievements = [];
+//}
+if (localProxy.gamesInARow === undefined) {
+    localProxy.gamesInARow = 0;
 }
 
 function preload() {
@@ -364,6 +367,24 @@ function displayVictor() {
             winner = "You";
         }
         if (victor === steveio) {
+            localProxy.gamesInARow += 1;
+            switch (localProxy.gamesInARow) {
+                case 3:
+                    achievements.add(hatTrick);
+                    break;
+                case 5:
+                    achievements.add(fiver);
+                    break;
+                case 10:
+                    achievements.add(hamilton);
+                    break;
+                case 100:
+                    achievements.add(benFranklin);
+                    break;
+                case 1000:
+                    achievements.add(technoblade);
+                    break;
+            }
             switch (currDifficulty) {
                 case "Easy":
                     achievements.add(pieceOfCake);
@@ -377,6 +398,29 @@ function displayVictor() {
                 case "Insane":
                     achievements.add(undying);
                     break;
+                case "Multiplayer":
+                    achievements.add(strangerDanger);
+                    break;
+            }
+            const timeTaken = fightTimer / -60;
+            if (timeTaken < 30) {
+                achievements.add(gg);
+            }
+            if (timeTaken < 15) {
+                achievements.add(ggNoob);
+            }
+            if (timeTaken < 10) {
+                achievements.add(lolGGEz);
+            }
+        }
+        if (victor === steve) {
+            localProxy.gamesInARow = 0;
+            const timeTaken = fightTimer / -60;
+            if (timeTaken < 10) {
+                achievements.add(gitGud);
+            }
+            if (timeTaken > 60) {
+                achievements.add(lastStand);
             }
         }
         const winMessage = (victor === steve && inMultiplayerFight) ? "Lost" : "Won"
@@ -630,7 +674,7 @@ const achievementHall = () => {
     achievementDisplay.style.overflow = "scroll";
     achievementList.forEach(a => {
         achievementDisplay.innerHTML += `
-            <div style="padding: 4px; max-height: 100px; overflow: scroll; border: 2px solid white;" class="w3-third w3-text-white w3-gray">
+            <div style="padding: 4px; max-height: 100px; border: 2px solid white;" class="w3-text-white w3-gray">
             <h4 class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}">${a.title}</h4>
             <p class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}"><em>${localProxy.achievements.includes(a.title) ? a.desc : "???..." }</em></p>
             </div>
@@ -659,6 +703,7 @@ const achievementHall = () => {
     const group = document.createElement("div");
     group.style.textAlign = "left";
     group.appendChild(achievementDisplay);
+    group.appendChild(document.createElement("br"))
     group.appendChild(backButton);
     menu.appendChild(group);
 }
