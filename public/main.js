@@ -28,9 +28,9 @@ let inMultiplayerFight;
 let fightTimer = 0;
 let sounds = {};
 let currDifficulty;
-//if (localProxy.achievements === undefined) {
-localProxy.achievements = [];
-//}
+if (localProxy.achievements === undefined) {
+    localProxy.achievements = [];
+}
 if (localProxy.gamesInARow === undefined) {
     localProxy.gamesInARow = 0;
 }
