@@ -27,18 +27,91 @@ let roomName;
 let inMultiplayerFight;
 let fightTimer = 0;
 let sounds = {};
+let hats = {};
 let currDifficulty;
+let currHat;
+let currOpponentHat = "";
 if (localProxy.achievements === undefined) {
     localProxy.achievements = [];
+}
+if (localProxy.unlockedHats === undefined) {
+    localProxy.unlockedHats = ["undefined", "witch"];
+    localProxy.achievements.forEach((achievementName) => {
+        const hatsUnlocked = achievementList.find(achievement => achievement.title === achievementName).hatsUnlocked;
+        if (hatsUnlocked) {
+            localProxy.unlockedHats = localProxy.unlockedHats.concat(hatsUnlocked);
+        }
+    })
 }
 if (localProxy.gamesInARow === undefined) {
     localProxy.gamesInARow = 0;
 }
+if (localProxy.hat === undefined) {
+    localProxy.hat = "undefined";
+}
+
+currHat = localProxy.hat;
 
 function preload() {
     dagger = loadImage("dagger.png");
     sword = loadImage("sword.png");
     axe = loadImage("axe.png");
+    hats.undefined = createImage(1, 1);
+    hats.undefined.sourceFile = "undefined.png";
+    hats.witch = loadImage("witchhat.png");
+    hats.witch.sourceFile = "witchhat.png";
+    hats.witch.xOffset = -30;
+    hats.witch.yOffset = -50;
+    hats.sunglasses = loadImage("sunglasses.png");
+    hats.sunglasses.sourceFile = "sunglasses.png";
+    hats.sunglasses.xOffset = -25;
+    hats.sunglasses.yOffset = -32;
+    hats.sunglasses.customWidth = 40;
+    hats.cake = loadImage("cake.png");
+    hats.cake.sourceFile = "cake.png";
+    hats.cake.xOffset = -30;
+    hats.cake.yOffset = -60;
+    hats.voidhat = loadImage("voidhat.png");
+    hats.voidhat.sourceFile = "voidhat.png";
+    hats.voidhat.xOffset = -30;
+    hats.voidhat.yOffset = -30;
+    hats.axe = loadImage("axehat.png");
+    hats.axe.sourceFile = "axehat.png";
+    hats.axe.xOffset = -35;
+    hats.axe.yOffset = -60;
+    hats.cap = loadImage("cap.png");
+    hats.cap.sourceFile = "cap.png";
+    hats.cap.xOffset = -23;
+    hats.cap.yOffset = -28;
+    hats.cap.customHeight = 30;
+    hats.head = loadImage("head.png");
+    hats.head.sourceFile = "head.png";
+    hats.head.xOffset = -20;
+    hats.head.yOffset = -25 * 2;
+    hats.head.customWidth = 40;
+    hats.head.customHeight = 40;
+    hats.ball = loadImage("bowlingball.png");
+    hats.ball.sourceFile = "bowlingball.png";
+    hats.ball.xOffset = -15;
+    hats.ball.yOffset = -15;
+    hats.ball.customWidth = 30;
+    hats.ball.customHeight = 30;
+    hats.hamilton = loadImage("hamilton.png");
+    hats.hamilton.sourceFile = "hamilton.png";
+    hats.hamilton.xOffset = -45;
+    hats.hamilton.yOffset = -30;
+    hats.hamilton.customWidth = 90;
+    hats.ben = loadImage("benfranklin.png");
+    hats.ben.sourceFile = "benfranklin.png";
+    hats.ben.xOffset = -40;
+    hats.ben.yOffset = -30;
+    hats.ben.customWidth = 80;
+    hats.techno = loadImage("technoblade.png");
+    hats.techno.sourceFile = "technoblade.png";
+    hats.techno.xOffset = -15;
+    hats.techno.yOffset = -15;
+    hats.techno.customWidth = 30;
+    hats.techno.customHeight = 30;
 }
 
 function setup() {
@@ -154,31 +227,36 @@ function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
             category: 4,
             cowardice: steveCow,
             puppet: difficulty === "Multiplayer",
-            color: side === "left" ? rightColor : leftColor
+            color: side === "left" ? rightColor : leftColor,
+            hat: currOpponentHat
         });
         steveio = Person({
             x: side === "left" ? 100 : 500,
             y: 475,
             weapon: steveioWeapon,
             category: 2,
-            color: side === "left" ? leftColor : rightColor
+            color: side === "left" ? leftColor : rightColor,
+            hat: currHat
         });
         inMultiplayerFight = true;
     } else {
+        currOpponentHat = "undefined";
         steve = Person({
             x: 500,
             y: 475,
             weapon: steveWeapon,
             category: 4,
             cowardice: steveCow,
-            puppet: difficulty === "Multiplayer"
+            puppet: difficulty === "Multiplayer",
+            hat: currOpponentHat
                 //color: genColor()
         });
         steveio = Person({
             x: 100,
             y: 475,
             weapon: steveioWeapon,
-            category: 2
+            category: 2,
+            hat: currHat
                 //color: genColor()
         });
     }
@@ -542,7 +620,8 @@ const openLobby = () => {
         menu.innerHTML = `<h1 style="font-size: 60px; margin-left: 100px;" class="w3-text-white">Waiting...</h1>`;
         socket.emit("addToRWaiting", {
             username,
-            id
+            id,
+            currHat
         });
     }
     const createMatch = document.createElement("button");
@@ -551,7 +630,7 @@ const openLobby = () => {
     createMatch.innerHTML = "Create Match";
     createMatch.style.marginLeft = "35px";
     createMatch.onclick = () => {
-        socket.emit("createCustomRoom", { username, id });
+        socket.emit("createCustomRoom", { username, id, currHat });
     }
     const joinMatch = document.createElement("button");
     joinMatch.classList.add(...
@@ -565,7 +644,7 @@ const openLobby = () => {
             showCancelButton: true
         }).then(({ value }) => {
             if (value) {
-                socket.emit("attemptRoomJoin", { roomName: value, username, id });
+                socket.emit("attemptRoomJoin", { roomName: value, username, id, currHat });
             }
         })
     }
@@ -707,6 +786,59 @@ const achievementHall = () => {
     group.appendChild(backButton);
     menu.appendChild(group);
 }
+const hatSelect = () => {
+    menu.innerHTML = ``;
+    const backButton = document.createElement("button");
+    backButton.innerHTML = "Back";
+    backButton.style.marginLeft = "175px";
+    backButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    backButton.onclick = mainMenu;
+    const group = document.createElement("div");
+    group.innerHTML += `<h1 style="font-size: 60px; margin-left: 50px;" class="w3-text-white">Select A Hat</h1>`;
+    group.style.textAlign = "left";
+    const refinedHats = Object.fromEntries(Object.entries(hats).filter(([hatname, _]) => localProxy.unlockedHats.includes(hatname)));
+    let currHatIndex = Object.keys(refinedHats).indexOf(currHat);
+    const [hatname, hat] = Object.entries(refinedHats)[currHatIndex];
+    currHat = hatname;
+    const img = document.createElement("img");
+    img.src = hat.sourceFile;
+    const back = document.createElement("button");
+    back.innerHTML = "<";
+    const forward = document.createElement("button");
+    forward.innerHTML = ">"
+    img.width = 300;
+    img.height = 300;
+    img.style.border = "5px solid white";
+    img.style.backgroundColor = "white";
+    img.style.marginLeft = "50px";
+    back.onclick = () => {
+        currHatIndex -= 1;
+        if (currHatIndex < 0) {
+            currHatIndex = Object.values(refinedHats).length - 1;
+        }
+        img.src = Object.values(refinedHats)[currHatIndex].sourceFile;
+        currHat = Object.keys(refinedHats)[currHatIndex];
+        localProxy.hat = currHat;
+    }
+    forward.style.marginLeft = "32px";
+    forward.onclick = () => {
+        currHatIndex += 1;
+        if (currHatIndex > Object.values(refinedHats).length - 1) {
+            currHatIndex = 0;
+        }
+        img.src = Object.values(refinedHats)[currHatIndex].sourceFile;
+        currHat = Object.keys(refinedHats)[currHatIndex];
+        localProxy.hat = currHat;
+    }
+    group.appendChild(back);
+    group.appendChild(img);
+    group.appendChild(forward);
+    group.appendChild(document.createElement("br"));
+    group.appendChild(document.createElement("br"));
+    group.appendChild(backButton);
+    menu.appendChild(group);
+}
 const mainMenu = () => {
     menu.innerHTML = `<h1 style="font-size: 60px" class="w3-text-white">Boomba Zoomba</h1>`;
     menu.appendChild(document.createElement("br"));
@@ -734,6 +866,14 @@ const mainMenu = () => {
     menu.appendChild(achievements);
     menu.appendChild(document.createElement("br"));
     menu.appendChild(document.createElement("br"));
+    const hatButton = document.createElement("button");
+    hatButton.classList.add(...
+        "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
+    hatButton.style.width = "200px";
+    hatButton.innerHTML = "Hats";
+    menu.appendChild(hatButton);
+    menu.appendChild(document.createElement("br"));
+    menu.appendChild(document.createElement("br"));
     const instructions = document.createElement("button");
     instructions.classList.add(...
         "w3-button w3-gray w3-xlarge w3-text-white w3-round".split(" "));
@@ -743,6 +883,7 @@ const mainMenu = () => {
     singleplayer.onclick = singlePlayerSelection;
     multiplayer.onclick = askUsername;
     achievements.onclick = achievementHall;
+    hatButton.onclick = hatSelect;
     instructions.onclick = () => {
         document.getElementById("inModal").style.display = "block";
     }
@@ -750,6 +891,7 @@ const mainMenu = () => {
 document.getElementById("singleplayer").onclick = singlePlayerSelection;
 document.getElementById("multiplayer").onclick = askUsername;
 document.getElementById("achievements").onclick = achievementHall;
+document.getElementById("hats").onclick = hatSelect;
 document.getElementById("instructions").onclick = () => {
     document.getElementById("inModal").style.display = "block";
 }
@@ -770,6 +912,7 @@ socket.on("roomMessageRecord", messages => {
 socket.on("partnerFound", partner => {
     displayRoomLobby(partner);
     roomPartner = partner;
+    currOpponentHat = partner.currHat;
 })
 socket.on("roomCreated", ({ roomName }) => {
     displayRoomLobby({ roomName });

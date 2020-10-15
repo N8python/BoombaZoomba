@@ -83,17 +83,18 @@ io.on("connection", socket => {
             io.to(roomName).emit("roomMessageRecord", room.chat);
         }
     })
-    socket.on("addToRWaiting", ({ username, id }) => {
+    socket.on("addToRWaiting", ({ username, id, currHat }) => {
         randomWaitingRoom.push({
             socket,
             username,
-            id
+            id,
+            currHat
         });
         if (randomWaitingRoom.length > 1) {
             const peeps = [randomWaitingRoom.shift(), randomWaitingRoom.shift()];
             const roomName = Math.random().toString().slice(2);
-            peeps[0].socket.emit("partnerFound", { username: peeps[1].username, id: peeps[1].id, roomName });
-            peeps[1].socket.emit("partnerFound", { username: peeps[0].username, id: peeps[0].id, roomName });
+            peeps[0].socket.emit("partnerFound", { username: peeps[1].username, id: peeps[1].id, currHat: peeps[1].currHat, roomName });
+            peeps[1].socket.emit("partnerFound", { username: peeps[0].username, id: peeps[0].id, currHat: peeps[0].currHat, roomName });
             peeps[0].socket.join(roomName);
             peeps[1].socket.join(roomName);
             currRoom = { roomName, people: peeps, chat: [] };
@@ -102,22 +103,22 @@ io.on("connection", socket => {
             matchRooms.push({ roomName, people: peeps, chat: [] });
         }
     });
-    socket.on("createCustomRoom", ({ username, id }) => {
+    socket.on("createCustomRoom", ({ username, id, currHat }) => {
         const roomName = randomWords({ exactly: 3, join: ' ', maxLength: 5 });
         socket.join(roomName);
-        currRoom = { roomName, people: [{ username, id, socket }], chat: [] };
+        currRoom = { roomName, people: [{ username, id, socket, currHat }], chat: [] };
         socket.setCurrRoom(currRoom);
-        matchRooms.push({ roomName, people: [{ username, id, socket }], chat: [] });
+        matchRooms.push({ roomName, people: [{ username, id, socket, currHat }], chat: [] });
         socket.emit("roomCreated", { roomName });
     });
-    socket.on("attemptRoomJoin", ({ roomName, username, id }) => {
+    socket.on("attemptRoomJoin", ({ roomName, username, id, currHat }) => {
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
         if (room && room.people.length < 2) {
             socket.join(roomName);
             currRoom = room;
             socket.setCurrRoom(room);
-            room.people[0].socket.emit("partnerFound", { username, id, roomName });
-            socket.emit("partnerFound", { username: room.people[0].username, id: room.people[0].id, roomName })
+            room.people[0].socket.emit("partnerFound", { username, id, roomName, currHat });
+            socket.emit("partnerFound", { username: room.people[0].username, id: room.people[0].id, currHat: room.people[0].currHat, roomName })
             room.people.push({ socket, username, id });
         } else {
             socket.emit("roomJoinFail", {});
@@ -142,11 +143,13 @@ io.on("connection", socket => {
     });
     socket.on("takeDownRoom", ({ roomName }) => {
         const room = matchRooms.find(({ roomName: rn }) => rn === roomName);
-        room.people.forEach(({ socket: s }) => {
-            s.emit("leaveRoom", { displayMessage: s !== socket });
-            s.leave(roomName);
-        });
-        matchRooms.splice(matchRooms.indexOf(room), 1);
+        if (room) {
+            room.people.forEach(({ socket: s }) => {
+                s.emit("leaveRoom", { displayMessage: s !== socket });
+                s.leave(roomName);
+            });
+            matchRooms.splice(matchRooms.indexOf(room), 1);
+        }
         currRoom = undefined;
     });
     socket.on("removeConstraintPuppet", ({ remove, roomName }) => {

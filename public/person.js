@@ -19,8 +19,11 @@ function Person({
     weapon,
     category,
     cowardice = 0,
-    puppet = false
+    puppet = false,
+    hat
 }) {
+    hat = hats[hat];
+    //console.log(hat);
     const weaponWidth = 10;
     const weaponHeight = 30;
     const myGroup = Body.nextGroup(false);
@@ -453,7 +456,7 @@ function Person({
             })
             if (steve.deadBodyParts.includes(steve.head) && Detector.collisions([
                     [weaponBox, steve.head]
-                ], engine).length > 0 && (abs(steve.head.velocity.x) > 7.5 || abs(steve.head.velocity.y) > 7.5)) {
+                ], engine).length > 0 && (abs(steve.head.velocity.x) > 5 || abs(steve.head.velocity.y) > 5)) {
                 achievements.add(headsUp);
             }
             if (inGame) {
@@ -629,6 +632,13 @@ function Person({
                 circle(-7 + xOffset, -2 + yOffset, 5);
                 circle(7 + xOffset, -2 + yOffset, 5);
                 pop();
+                if (hat) {
+                    push();
+                    translate(head.position.x, head.position.y);
+                    rotate(head.angle);
+                    image(hat, hat.xOffset, hat.yOffset, hat.customWidth ? hat.customWidth : 60, hat.customHeight ? hat.customHeight : 60);
+                    pop();
+                }
                 if (this === steveio) {
                     noStroke();
                     fill(255, 255, 255, 255 - step * 2);
