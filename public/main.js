@@ -31,6 +31,7 @@ let hats = {};
 let currDifficulty;
 let currHat;
 let currOpponentHat = "";
+var timeDisarmed;
 if (localProxy.achievements === undefined) {
     localProxy.achievements = [];
 }
@@ -134,6 +135,12 @@ function preload() {
     hats.bowtie.yOffset = 0; // how much the hat is y offset by
     hats.bowtie.customWidth = 40; // how much the hat is y offset by
     hats.bowtie.customHeight = 40; // how much the hat is y offset by
+    hats.cry = loadImage("cry.png");
+    hats.cry.sourceFile = "cry.png";
+    hats.cry.xOffset = -20; // how much the hat is x offset by
+    hats.cry.yOffset = -20; // how much the hat is y offset by
+    hats.cry.customWidth = 40; // how much the hat is y offset by
+    hats.cry.customHeight = 40; // how much the hat is y offset by
 }
 
 function setup() {
@@ -467,6 +474,9 @@ function keyReleased() {
 const menu = document.getElementById("menu");
 
 function displayVictor() {
+	if(performance.now()-timeDisarmed > 60000 && winner === "You"){
+		achievements.add(neverGiveUp);
+	}
     if (!victorDisplayed) {
         let winner = (victor === steveio) ? "You" : "The AI";
         if (inMultiplayerFight) {

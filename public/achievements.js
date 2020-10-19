@@ -26,7 +26,7 @@ const strangerDanger = { title: "Stranger Danger", desc: "Win a multiplayer duel
 const gg = { title: "GG", desc: "Win a game in thirty seconds \nor less." }
 const ggNoob = { title: "GG Noob", desc: "Win a game in fifteen seconds \nor less." };
 const lolGGEz = { title: "Lol GG Ez", desc: "Win a game in ten seconds \nor less.", hatsUnlocked: ["tongue"]};
-const gitGud = { title: "Git Gud", desc: "Lose a game after fighting \nten seconds or less."};
+const gitGud = { title: "Git Gud", desc: "Lose a game after fighting \nten seconds or less.", hatsUnlocked: ["cry"]};
 const lastStand = { title: "Last Stand", desc: "Lose a game after fighting \nfor a minute or more." };
 const stylish = { title: "Stylish", desc: "Be obsessed with the hats. Think about \nthem in your sleep and change them constantly.", hatsUnlocked: ["bowtie"]};
 const neverGiveUp = { title: "Never Give Up", desc: "Evade death for 60 full seconds \nafter being disarmed.", hatsUnlocked: ["potato"]};
@@ -48,7 +48,7 @@ const displayHats = {
     "ben": "Ben Franklin Head",
     "techno": "Technoblade Head"
 }
-const achievementList = [pieceOfCake, fightScene, axeTheHead, undying, headsUp, strangerDanger, gg, ggNoob, lolGGEz, gitGud, lastStand, hatTrick, fiver, hamilton, benFranklin, technoblade, hacker];
+const achievementList = [pieceOfCake, fightScene, axeTheHead, undying, headsUp, strangerDanger, gg, ggNoob, lolGGEz, gitGud, lastStand, hatTrick, neverGiveUp, fiver, hamilton, benFranklin, technoblade, hacker];
 const achievements = {
     currAchievements: [],
     currHatsUnlocked: [],
