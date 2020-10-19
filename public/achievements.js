@@ -25,15 +25,17 @@ const headsUp = { title: "Heads Up", desc: "Hit someone’s decapitated head.", 
 const strangerDanger = { title: "Stranger Danger", desc: "Win a multiplayer duel." };
 const gg = { title: "GG", desc: "Win a game in thirty seconds \nor less." }
 const ggNoob = { title: "GG Noob", desc: "Win a game in fifteen seconds \nor less." };
-const lolGGEz = { title: "Lol GG Ez", desc: "Win a game in ten seconds \nor less." };
-const gitGud = { title: "Git Gud", desc: "Lose a game after fighting \nten seconds or less." };
+const lolGGEz = { title: "Lol GG Ez", desc: "Win a game in ten seconds \nor less.", hatsUnlocked: ["tongue"]};
+const gitGud = { title: "Git Gud", desc: "Lose a game after fighting \nten seconds or less."};
 const lastStand = { title: "Last Stand", desc: "Lose a game after fighting \nfor a minute or more." };
+const stylish = { title: "Stylish", desc: "Be obsessed with the hats. Think about \nthem in your sleep and change them constantly.", hatsUnlocked: ["bowtie"]};
+const neverGiveUp = { title: "Never Give Up", desc: "Evade death for 60 full seconds \nafter being disarmed.", hatsUnlocked: ["potato"]};
 const hatTrick = { title: "Hat Trick", desc: "Win three games in a row.", hatsUnlocked: ["ball"] };
 const fiver = { title: "Fiver", desc: "Win five games in a row." };
 const hamilton = { title: "Hamilton", desc: "Win ten games in a row.", hatsUnlocked: ["hamilton"] };
 const benFranklin = { title: "Ben Franklin", desc: "Win a hundred games in a row.", hatsUnlocked: ["ben"] };
-const technoblade = { title: "Technoblade", desc: "Win a thousand games in a row.", hatsUnlocked: ["techno"] };
-const hacker = { title: "Hacker", desc: "Cheat to get this achievement.", hatsUnlocked: ["sunglasses"] };
+const technoblade = { title: "Technoblade", desc: "Play two hundred games.", hatsUnlocked: ["techno"] };
+const hacker = { title: "Hacker", desc: "For extremely cool people only, so you have to figure it out.", hatsUnlocked: ["sunglasses"] };
 const displayHats = {
     "sunglasses": "Sunglasses",
     "cake": "Cake Hat",
