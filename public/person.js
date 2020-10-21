@@ -777,6 +777,7 @@ function Person({
                         case upperArm1:
                             deadBodyParts.push(lowerArm1);
                             deadBodyParts.push(weaponBox);
+                            timeDisarmed = performance.now();
                             if (!puppet) {
                                 World.remove(engine.world, [shoulder1, elbow1]);
                                 socket.emit("removeConstraintPuppet", { remove: ["shoulder1", "elbow1"], roomName });
@@ -791,6 +792,7 @@ function Person({
                             break;
                         case lowerArm1:
                             deadBodyParts.push(weaponBox);
+                            timeDisarmed = performance.now();
                             if (!puppet) {
                                 World.remove(engine.world, [elbow1]);
                                 socket.emit("removeConstraintPuppet", { remove: ["elbow1"], roomName });

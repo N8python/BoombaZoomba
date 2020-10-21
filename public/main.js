@@ -31,6 +31,7 @@ let hats = {};
 let currDifficulty;
 let currHat;
 let currOpponentHat = "";
+var timeDisarmed;
 if (localProxy.achievements === undefined) {
     localProxy.achievements = [];
 }
@@ -48,6 +49,12 @@ if (localProxy.gamesInARow === undefined) {
 }
 if (localProxy.hat === undefined) {
     localProxy.hat = "undefined";
+}
+if(localProxy.gamesPlayed === undefined){
+	localProxy.gamesPlayed = 0;
+}
+if(localProxy.diffHatsTried === undefined){
+	localProxy.diffHatsTried = [];
 }
 
 currHat = localProxy.hat;
@@ -112,6 +119,28 @@ function preload() {
     hats.techno.yOffset = -15;
     hats.techno.customWidth = 30;
     hats.techno.customHeight = 30;
+    hats.potato = loadImage("potato.png");
+    hats.potato.sourceFile = "potato.png";
+    hats.potato.xOffset = -30; // how much the hat is x offset by
+    hats.potato.yOffset = -30; // how much the hat is y offset by
+    hats.tongue = loadImage("tongue.png");
+    hats.tongue.sourceFile = "tongue.png";
+    hats.tongue.xOffset = -15; // how much the hat is x offset by
+    hats.tongue.yOffset = -15; // how much the hat is y offset by
+    hats.tongue.customWidth = 30; // how much the hat is y offset by
+    hats.tongue.customHeight = 30; // how much the hat is y offset by
+    hats.bowtie = loadImage("bowtie.png");
+    hats.bowtie.sourceFile = "bowtie.png";
+    hats.bowtie.xOffset = -20; // how much the hat is x offset by
+    hats.bowtie.yOffset = 0; // how much the hat is y offset by
+    hats.bowtie.customWidth = 40; // how much the hat is y offset by
+    hats.bowtie.customHeight = 40; // how much the hat is y offset by
+    hats.cry = loadImage("cry.png");
+    hats.cry.sourceFile = "cry.png";
+    hats.cry.xOffset = -20; // how much the hat is x offset by
+    hats.cry.yOffset = -20; // how much the hat is y offset by
+    hats.cry.customWidth = 40; // how much the hat is y offset by
+    hats.cry.customHeight = 40; // how much the hat is y offset by
 }
 
 function setup() {
@@ -180,6 +209,12 @@ function setup() {
 let doneOnce = false;
 
 function start(difficulty, { side = "left", leftColor, rightColor } = {}) {
+	console.log(localProxy.diffHatsTried[localProxy.diffHatsTried.length-1], localProxy.hat);
+	localProxy.gamesPlayed++;
+	if(localProxy.diffHatsTried[localProxy.diffHatsTried.length-1] !== localProxy.hat){
+		localProxy.diffHatsTried = localProxy.diffHatsTried.concat([localProxy.hat]);
+		if(localProxy.diffHatsTried.length > 6) achievements.add(stylish);
+	}
     currDifficulty = difficulty;
     fightTimer = 60 * 3;
     victorDisplayed = false;
@@ -439,6 +474,9 @@ function keyReleased() {
 const menu = document.getElementById("menu");
 
 function displayVictor() {
+	if(performance.now()-timeDisarmed > 60000 && winner === "You"){
+		achievements.add(neverGiveUp);
+	}
     if (!victorDisplayed) {
         let winner = (victor === steveio) ? "You" : "The AI";
         if (inMultiplayerFight) {
@@ -459,10 +497,8 @@ function displayVictor() {
                 case 100:
                     achievements.add(benFranklin);
                     break;
-                case 1000:
-                    achievements.add(technoblade);
-                    break;
             }
+            if(localProxy.gamesPlayed>200) achievements.add(technoblade);
             switch (currDifficulty) {
                 case "Easy":
                     achievements.add(pieceOfCake);
@@ -755,7 +791,7 @@ const achievementHall = () => {
         achievementDisplay.innerHTML += `
             <div style="padding: 4px; max-height: 100px; border: 2px solid white;" class="w3-text-white w3-gray">
             <h4 class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}">${a.title}</h4>
-            <p class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}"><em>${localProxy.achievements.includes(a.title) ? a.desc : "???..." }</em></p>
+            <p class="${localProxy.achievements.includes(a.title) ? "w3-text-white" : "graytext"}"><em>${a.desc}</em></p>
             </div>
         `;
     });
