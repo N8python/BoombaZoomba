@@ -47,10 +47,10 @@ const displayHats = {
     "hamilton": "Hamilton Head",
     "ben": "Ben Franklin Head",
     "techno": "Technoblade Head",
-    "tongue": "Sicking Out Tongue Emoji",
-    "cry": "Crying Emoji ;-;",
-    "bowtie": "Bowtie For Those With Style",
-    "potato": "Potato Instead of Head"
+    "tongue": "Tongue Emoji",
+    "cry": "Crying Emoji",
+    "bowtie": "Bowtie",
+    "potato": "Potato Head"
 }
 const achievementList = [pieceOfCake, fightScene, axeTheHead, undying, headsUp, strangerDanger, gg, ggNoob, lolGGEz, gitGud, lastStand, hatTrick, neverGiveUp, fiver, hamilton, benFranklin, technoblade, hacker];
 const achievements = {
